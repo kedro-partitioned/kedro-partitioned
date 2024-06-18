@@ -1,11 +1,12 @@
 """Function factories for creating filters."""
+
 import re
 from re import Pattern
 
 import pandas as pd
 from kedro_partitioned.utils.typing import IsFunction
 
-DATE_FORMAT_ISO = '%Y-%m-%d'
+DATE_FORMAT_ISO = "%Y-%m-%d"
 
 
 def not_filter(fn: IsFunction[str]) -> IsFunction[str]:
@@ -79,14 +80,18 @@ def _date_format_to_regex(format: str) -> Pattern:
         re.compile('(([0-2][0-9])|(3[0-1]))\\/((0[0-9])|(1[0-2]))\\/\\d{4}')
     """
     return re.compile(
-        format.replace('/', r'\/').replace('%Y', r'\d{4}').replace(
-            '%m', r'((0[0-9])|(1[0-2]))').replace('%d',
-                                                  r'(([0-2][0-9])|(3[0-1]))'))
+        format.replace("/", r"\/")
+        .replace("%Y", r"\d{4}")
+        .replace("%m", r"((0[0-9])|(1[0-2]))")
+        .replace("%d", r"(([0-2][0-9])|(3[0-1]))")
+    )
 
 
-def date_range_filter(min_date: str = pd.Timestamp.min,
-                      max_date: str = pd.Timestamp.max,
-                      format: str = DATE_FORMAT_ISO) -> IsFunction[str]:
+def date_range_filter(
+    min_date: str = pd.Timestamp.min,
+    max_date: str = pd.Timestamp.max,
+    format: str = DATE_FORMAT_ISO,
+) -> IsFunction[str]:
     """Generates a date_range filter function.
 
     Args:

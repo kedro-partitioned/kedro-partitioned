@@ -1,4 +1,5 @@
 """Functions for step level parallelism."""
+
 from __future__ import annotations
 from abc import abstractproperty
 from collections import Counter
@@ -8,7 +9,16 @@ import itertools
 import math
 import re
 from typing import (
-    Any, Callable, Dict, Iterable, List, Pattern, Set, Tuple, TypedDict, Union
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Pattern,
+    Set,
+    Tuple,
+    TypedDict,
+    Union,
 )
 from typing_extensions import Literal, NotRequired
 
@@ -61,7 +71,7 @@ class _Configurator(TypedDict, total=False):
         data: Everything that is gonna be passed to the multinode function
     """
 
-    target: List[Union[str, List[str], Literal['*']]]
+    target: List[Union[str, List[str], Literal["*"]]]
     cached: NotRequired[bool]
     data: dict
 
@@ -93,7 +103,7 @@ class ConfiguratorFinder:
     """
 
     NOT_FOUND = -1
-    ANY = '*'
+    ANY = "*"
 
     def __init__(self, configurators: _Configurators):
         """Initializes the ConfiguratorFinder.
@@ -101,8 +111,8 @@ class ConfiguratorFinder:
         Args:
             configurators (_Configurators): Configurators to use.
         """
-        self._template = configurators['template']
-        self._configurators = configurators['configurators']
+        self._template = configurators["template"]
+        self._configurators = configurators["configurators"]
 
     @cached_property
     def keys(self) -> List[str]:
@@ -111,7 +121,7 @@ class ConfiguratorFinder:
         Returns:
             List[str]: Keys between {} in the template.
         """
-        return re.findall(re.compile(r'\{(.+?)\}'), self._template['pattern'])
+        return re.findall(re.compile(r"\{(.+?)\}"), self._template["pattern"])
 
     @cached_property
     def weights(self) -> List[int]:
@@ -121,7 +131,7 @@ class ConfiguratorFinder:
             List[int]
         """
         keys = self.keys
-        hierarchy = self._template.get('hierarchy', keys)
+        hierarchy = self._template.get("hierarchy", keys)
         return [hierarchy.index(key) for key in keys]
 
     @cached_property
@@ -136,8 +146,9 @@ class ConfiguratorFinder:
         """
         return {
             hash(tuple(reversed(possibility))): score
-            for score, possibility in
-            enumerate(itertools.product([False, True], repeat=len(self.keys)))
+            for score, possibility in enumerate(
+                itertools.product([False, True], repeat=len(self.keys))
+            )
         }
 
     def _build_regex(self, configurator: _Configurator) -> Pattern:
@@ -153,7 +164,7 @@ class ConfiguratorFinder:
         def parse_target(key: str, target: str) -> List[str]:
             if isinstance(target, str):
                 if target == self.ANY:
-                    return [self._template.get('any', {}).get(key, '.*')]
+                    return [self._template.get("any", {}).get(key, ".*")]
                 else:
                     return [target]
             else:
@@ -161,12 +172,14 @@ class ConfiguratorFinder:
 
         targets = (
             f'({"|".join(parse_target(key, target))})'
-            for key, target in zip(self.keys, configurator['target'])
+            for key, target in zip(self.keys, configurator["target"])
         )
-        key_regex = '|'.join([r'\{%s\}' % k for k in self.keys])
-        return r'^' + re.sub(
-            key_regex, lambda _: next(targets), self._template['pattern']
-        ) + r'$'
+        key_regex = "|".join([r"\{%s\}" % k for k in self.keys])
+        return (
+            r"^"
+            + re.sub(key_regex, lambda _: next(targets), self._template["pattern"])
+            + r"$"
+        )
 
     def _score_match(self, path: str, configurator: _Configurator) -> int:
         """Computes the score of a configurator if it matches the path.
@@ -179,7 +192,7 @@ class ConfiguratorFinder:
             int: Score of the configurator.
         """
         regex = self._build_regex(configurator)
-        targets = configurator['target']
+        targets = configurator["target"]
         weights = self.weights
         if re.match(regex, path):
             raw_possibility = [group != self.ANY for group in targets]
@@ -202,13 +215,14 @@ class ConfiguratorFinder:
         configurator = max(
             self._configurators, key=lambda x: self._score_match(path, x)
         )
-        return None if self._score_match(
-            path, configurator
-        ) == self.NOT_FOUND else configurator
+        return (
+            None
+            if self._score_match(path, configurator) == self.NOT_FOUND
+            else configurator
+        )
 
 
 class _CustomizedFuncNode(Node):
-
     def __init__(
         self,
         func: Callable,
@@ -217,7 +231,7 @@ class _CustomizedFuncNode(Node):
         name: str = None,
         tags: Union[str, Iterable[str]] = None,
         confirms: Union[str, List[str]] = None,
-        namespace: str = None
+        namespace: str = None,
     ):
         self._original_func = func
         super().__init__(
@@ -227,7 +241,7 @@ class _CustomizedFuncNode(Node):
             name=name,
             tags=tags,
             confirms=confirms,
-            namespace=namespace
+            namespace=namespace,
         )
 
     @abstractproperty
@@ -308,7 +322,7 @@ class _SlicerNode(_CustomizedFuncNode):
         {'c-slicer': [['subpath/b'], []]}
     """
 
-    SLICER_SUFFIX = '-slicer'
+    SLICER_SUFFIX = "-slicer"
 
     def __init__(
         self,
@@ -351,15 +365,15 @@ class _SlicerNode(_CustomizedFuncNode):
 
     def _copy(self, **overwrite_params: Any) -> _SlicerNode:
         params = {
-            'partitioned_inputs': self._partitioned_inputs,
-            'partitioned_outputs': self._original_output,
-            'slice_count': self._slice_count,
-            'name': self._name,
-            'namespace': self._namespace,
-            'tags': self._tags,
-            'confirms': self._confirms,
-            'configurator': self._configurator,
-            'filter': self._filter,
+            "partitioned_inputs": self._partitioned_inputs,
+            "partitioned_outputs": self._original_output,
+            "slice_count": self._slice_count,
+            "name": self._name,
+            "namespace": self._namespace,
+            "tags": self._tags,
+            "confirms": self._confirms,
+            "configurator": self._configurator,
+            "filter": self._filter,
         }
         params.update(overwrite_params)
         return self.__class__(**params)
@@ -383,12 +397,12 @@ class _SlicerNode(_CustomizedFuncNode):
             'test-slicer'
         """
         return (
-            string if string.endswith(cls.SLICER_SUFFIX) else
-            f'{string}{cls.SLICER_SUFFIX}'
+            string
+            if string.endswith(cls.SLICER_SUFFIX)
+            else f"{string}{cls.SLICER_SUFFIX}"
         )
 
-    def _intersect_partitioneds(self,
-                                partitioneds: List[_Partitioned]) -> List[str]:
+    def _intersect_partitioneds(self, partitioneds: List[_Partitioned]) -> List[str]:
         """Takes only the matching partitions (required for the input `zip`).
 
         Args:
@@ -397,15 +411,13 @@ class _SlicerNode(_CustomizedFuncNode):
         Returns:
             List[str]
         """
-        partitioned_sets = [{
-            get_filepath_without_extension(path)
-            for path in partitioned
-        } for partitioned in partitioneds]
+        partitioned_sets = [
+            {get_filepath_without_extension(path) for path in partitioned}
+            for partitioned in partitioneds
+        ]
 
         return list(
-            reduce(
-                lambda inter, curr: inter.intersection(curr), partitioned_sets
-            )
+            reduce(lambda inter, curr: inter.intersection(curr), partitioned_sets)
         )
 
     def _calc_slice_bound(self, partition_count: int, slice_id: int) -> int:
@@ -435,25 +447,24 @@ class _SlicerNode(_CustomizedFuncNode):
             List[str]
         """
         partition_count = len(partitions)
-        return partitions[self._calc_slice_bound(
-            partition_count,
-            slice_id,
-        ):self._calc_slice_bound(
-            partition_count,
-            slice_id + 1,
-        )]
+        return partitions[
+            self._calc_slice_bound(
+                partition_count,
+                slice_id,
+            ) : self._calc_slice_bound(
+                partition_count,
+                slice_id + 1,
+            )
+        ]
 
     def _apply_filter(self, intersection: List[str]) -> List[str]:
         return [p for p in intersection if self._filter(p)]
 
     @classmethod
-    def _extract_args_part(cls, args: tuple,
-                           nargs: int) -> Tuple[tuple, tuple]:
+    def _extract_args_part(cls, args: tuple, nargs: int) -> Tuple[tuple, tuple]:
         return args[:nargs], args[nargs:]
 
-    def _extract_args(
-        self, args: tuple
-    ) -> Tuple[List[_Partitioned], _Configurators]:
+    def _extract_args(self, args: tuple) -> Tuple[List[_Partitioned], _Configurators]:
         if self._configurator is None:
             return args, {}
         else:
@@ -466,15 +477,15 @@ class _SlicerNode(_CustomizedFuncNode):
         if self._configurator:
             configurator_finder = ConfiguratorFinder(configurators)
             return [
-                p for p in intersection
-                if not (configurator_finder[p] or {}).get('cached', False)
+                p
+                for p in intersection
+                if not (configurator_finder[p] or {}).get("cached", False)
             ]
         else:
             return intersection
 
     @property
     def func(self) -> Callable:
-
         def fn(*args: Any) -> List[List[str]]:
             partitioneds, configurators = self._extract_args(args)
 
@@ -575,7 +586,7 @@ class _MultiNode(_CustomizedFuncNode):
         {'c-slice-0': {'subpath/a': 203}, 'd-slice-0': {'subpath/a': 204}}
     """
 
-    SLICE_SUFFIX = '-slice-'
+    SLICE_SUFFIX = "-slice-"
 
     def __init__(
         self,
@@ -609,8 +620,12 @@ class _MultiNode(_CustomizedFuncNode):
 
         super().__init__(
             func=func,
-            inputs=([self.slicer_output] + tolist(partitioned_inputs)
-                    + optionaltolist(configurator) + tolist(other_inputs)),
+            inputs=(
+                [self.slicer_output]
+                + tolist(partitioned_inputs)
+                + optionaltolist(configurator)
+                + tolist(other_inputs)
+            ),
             outputs=self.partitioned_outputs,
             name=self._add_slice_suffix(name),
             tags=tags,
@@ -644,32 +659,31 @@ class _MultiNode(_CustomizedFuncNode):
             an input
         """
         inputs = Counter(
-            inp for n in previous_nodes
-            for inp in n.original_partitioned_outputs
+            inp for n in previous_nodes for inp in n.original_partitioned_outputs
         )
 
         self._partitioned_inputs = [
-            self.add_slice_suffix(
-                input, self._calc_match_index(inputs[input])
-            ) if inputs[input] > 0 else input
+            self.add_slice_suffix(input, self._calc_match_index(inputs[input]))
+            if inputs[input] > 0
+            else input
             for input in self.original_partitioned_inputs
         ]
 
     # required for inheritance
     def _copy(self, **overwrite_params: Any) -> _MultiNode:
         params = {
-            'slicer': self._slicer,
-            'func': self._func,
-            'partitioned_inputs': self._partitioned_inputs,
-            'other_inputs': self._other_inputs,
-            'partitioned_outputs': self._partitioned_outputs,
-            'slice_id': self._slice_id,
-            'slice_count': self._slice_count,
-            'name': self._name,
-            'namespace': self._namespace,
-            'tags': self._tags,
-            'confirms': self._confirms,
-            'configurator': self._configurator,
+            "slicer": self._slicer,
+            "func": self._func,
+            "partitioned_inputs": self._partitioned_inputs,
+            "other_inputs": self._other_inputs,
+            "partitioned_outputs": self._partitioned_outputs,
+            "slice_id": self._slice_id,
+            "slice_count": self._slice_count,
+            "name": self._name,
+            "namespace": self._namespace,
+            "tags": self._tags,
+            "confirms": self._confirms,
+            "configurator": self._configurator,
         }
         params.update(overwrite_params)
         return self.__class__(**params)
@@ -678,7 +692,7 @@ class _MultiNode(_CustomizedFuncNode):
         try:
             super()._validate_inputs(func, inputs)
         except TypeError as e:
-            expected, passed = re.findall(r'(\[.*?\])', str(e))
+            expected, passed = re.findall(r"(\[.*?\])", str(e))
             if len(expected) > len(passed):
                 raise e
 
@@ -692,8 +706,9 @@ class _MultiNode(_CustomizedFuncNode):
         return self._slicer.json_output
 
     @classmethod
-    def add_slice_suffix(cls, string: Union[str, List[str]],
-                         slice_id: int) -> Union[str, List[str]]:
+    def add_slice_suffix(
+        cls, string: Union[str, List[str]], slice_id: int
+    ) -> Union[str, List[str]]:
         """Adds a `{SLICE_SUFFIX}{slice_id}` at the end of a string.
 
         Args:
@@ -710,10 +725,14 @@ class _MultiNode(_CustomizedFuncNode):
             >>> _MultiNode.add_slice_suffix('test-slice-1', 1)
             'test-slice-1'
         """
-        return firstorlist([
-            el if re.search(rf'{cls.SLICE_SUFFIX}\d+$', el) else
-            f'{el}{cls.SLICE_SUFFIX}{slice_id}' for el in tolist(string)
-        ])
+        return firstorlist(
+            [
+                el
+                if re.search(rf"{cls.SLICE_SUFFIX}\d+$", el)
+                else f"{el}{cls.SLICE_SUFFIX}{slice_id}"
+                for el in tolist(string)
+            ]
+        )
 
     def _add_slice_suffix(
         self,
@@ -791,7 +810,8 @@ class _MultiNode(_CustomizedFuncNode):
         """
         return [
             self._add_slice_suffix(output)
-            if output in self.original_partitioned_outputs else output
+            if output in self.original_partitioned_outputs
+            else output
             for output in super().outputs
         ]
 
@@ -806,11 +826,14 @@ class _MultiNode(_CustomizedFuncNode):
         Returns:
             List[Partitioned]
         """
-        return [{
-            path: partitioned[path]
-            for path in partitioned
-            if get_filepath_without_extension(path) in slice
-        } for partitioned in partitioneds]
+        return [
+            {
+                path: partitioned[path]
+                for path in partitioned
+                if get_filepath_without_extension(path) in slice
+            }
+            for partitioned in partitioneds
+        ]
 
     def _get_slice(self, slices: List[List[str]]) -> Set[str]:
         return set(slices[self.slice_id])
@@ -830,12 +853,12 @@ class _MultiNode(_CustomizedFuncNode):
         return self._intersect_partitioneds(slice, partitioneds)
 
     @classmethod
-    def _extract_args_part(cls, args: List[Any],
-                           nargs: int) -> Tuple[List[Any], List[Any]]:
+    def _extract_args_part(
+        cls, args: List[Any], nargs: int
+    ) -> Tuple[List[Any], List[Any]]:
         return args[:nargs], args[nargs:]
 
-    def _extract_slices(self,
-                        args: List[Any]) -> Tuple[List[List[str]], List[Any]]:
+    def _extract_slices(self, args: List[Any]) -> Tuple[List[List[str]], List[Any]]:
         slices, args = self._extract_args_part(args, 1)
         return slices[0], args
 
@@ -855,11 +878,12 @@ class _MultiNode(_CustomizedFuncNode):
 
     def _extract_args(
         self, args: List[Any]
-    ) -> Tuple[List[List[str]],
-               List[_Partitioned],
-               Union[None, Dict[str, _Configurator]],
-               List[Any],
-               ]:
+    ) -> Tuple[
+        List[List[str]],
+        List[_Partitioned],
+        Union[None, Dict[str, _Configurator]],
+        List[Any],
+    ]:
         slices, args = self._extract_slices(args)
         partitioneds, args = self._extract_partitioneds(args)
         configurators, args = self._extract_configurators(args)
@@ -876,8 +900,7 @@ class _MultiNode(_CustomizedFuncNode):
 
         @wraps(self._func)
         def fn(*args: Any) -> Any:
-            slices, partitioneds, configurators, other_inputs =\
-                self._extract_args(args)
+            slices, partitioneds, configurators, other_inputs = self._extract_args(args)
 
             partitioneds = self._slice_inputs(slices, partitioneds)
 
@@ -892,12 +915,8 @@ class _MultiNode(_CustomizedFuncNode):
                     # partitions[i][j]
                     # i = partitioned partitions
                     # j = key == 0, value == 1
-                    partition = get_filepath_without_extension(
-                        partitions[0][0]
-                    )
-                    self._logger.info(
-                        f'Processing "{partition}" on "{self.name}"'
-                    )
+                    partition = get_filepath_without_extension(partitions[0][0])
+                    self._logger.info(f'Processing "{partition}" on "{self.name}"')
 
                     configurator = []
                     if self._configurator:
@@ -908,11 +927,10 @@ class _MultiNode(_CustomizedFuncNode):
                                 f'No configurator found for "{partition}"'
                             )
                         else:
-                            target = possible_configurator['target']
-                            configurator = [possible_configurator['data']]
+                            target = possible_configurator["target"]
+                            configurator = [possible_configurator["data"]]
                             self._logger.info(
-                                f'Using configurator "{target}" for '
-                                f'"{partition}"'
+                                f'Using configurator "{target}" for ' f'"{partition}"'
                             )
 
                     with ThreadPoolExecutor() as pool:
@@ -952,7 +970,7 @@ class _SynchronizationNode(_CustomizedFuncNode):
         {'b': {}}
     """
 
-    SYNCHRONIZATION_SUFFIX = '-synchronization'
+    SYNCHRONIZATION_SUFFIX = "-synchronization"
 
     def __init__(
         self,
@@ -978,19 +996,19 @@ class _SynchronizationNode(_CustomizedFuncNode):
 
     def _add_synchronization_suffix(self, string: str) -> str:
         if not string.endswith(self.SYNCHRONIZATION_SUFFIX):
-            return f'{string}{self.SYNCHRONIZATION_SUFFIX}'
+            return f"{string}{self.SYNCHRONIZATION_SUFFIX}"
         else:
             return string
 
     # required for inheritance
     def _copy(self, **overwrite_params: Any) -> _SynchronizationNode:
         params = {
-            'multinodes': self._multinodes,
-            'partitioned_outputs': self._partitioned_outputs,
-            'name': self._name,
-            'namespace': self._namespace,
-            'tags': self._tags,
-            'confirms': self._confirms,
+            "multinodes": self._multinodes,
+            "partitioned_outputs": self._partitioned_outputs,
+            "name": self._name,
+            "namespace": self._namespace,
+            "tags": self._tags,
+            "confirms": self._confirms,
         }
         params.update(overwrite_params)
         return self.__class__(**params)
@@ -1001,7 +1019,6 @@ class _SynchronizationNode(_CustomizedFuncNode):
 
     @property
     def func(self) -> Callable:
-
         def fn(*args: Any) -> List[dict]:
             return [dict() for _ in range(len(self.outputs))]
 
@@ -1161,28 +1178,29 @@ def multipipeline(
         n_slices = max(
             1,
             math.floor(
-                max_simultaneous_steps
-                / max(len(layer) for layer in pipe.grouped_nodes)
-            )
+                max_simultaneous_steps / max(len(layer) for layer in pipe.grouped_nodes)
+            ),
         )
 
     # because a multinode becomes multiple nodes
     confirms = unique(_treat_optional_one_or_many(confirms))
     tags = unique(_treat_optional_one_or_many(tags) + [name])
 
-    slicer = Pipeline([
-        _SlicerNode(
-            slice_count=n_slices,
-            partitioned_inputs=partitioned_input,
-            partitioned_outputs=tolist(partitioned_output)[0],
-            name=name,
-            tags=tags,
-            confirms=confirms,
-            namespace=namespace,
-            filter=filter,
-            configurator=configurator
-        )
-    ])
+    slicer = Pipeline(
+        [
+            _SlicerNode(
+                slice_count=n_slices,
+                partitioned_inputs=partitioned_input,
+                partitioned_outputs=tolist(partitioned_output)[0],
+                name=name,
+                tags=tags,
+                confirms=confirms,
+                namespace=namespace,
+                filter=filter,
+                configurator=configurator,
+            )
+        ]
+    )
 
     sources = set(tolist(partitioned_input) + tolist(partitioned_output))
 
@@ -1193,13 +1211,9 @@ def multipipeline(
         for lnode in layer:
             assert lnode._name, f'"{lnode}" name not defined'
 
-            partitioned, other = partition(
-                lambda x: x in sources, lnode.inputs
-            )
+            partitioned, other = partition(lambda x: x in sources, lnode.inputs)
 
-            possible_configurator, other = partition(
-                lambda x: x == configurator, other
-            )
+            possible_configurator, other = partition(lambda x: x == configurator, other)
             node_configurator = (
                 possible_configurator[0] if possible_configurator else None
             )
@@ -1225,16 +1239,18 @@ def multipipeline(
 
         multinodes = multinodes + Pipeline(multinode_layer)
 
-    synchronization = Pipeline([
-        _SynchronizationNode(
-            multinodes=_sortnodes(multinodes.grouped_nodes[-1]),
-            partitioned_outputs=partitioned_output,
-            name=name,
-            tags=tags,
-            confirms=confirms,
-            namespace=namespace,
-        )
-    ])
+    synchronization = Pipeline(
+        [
+            _SynchronizationNode(
+                multinodes=_sortnodes(multinodes.grouped_nodes[-1]),
+                partitioned_outputs=partitioned_output,
+                name=name,
+                tags=tags,
+                confirms=confirms,
+                namespace=namespace,
+            )
+        ]
+    )
 
     return slicer + multinodes + synchronization
 
@@ -1491,17 +1507,20 @@ def multinode(
         target ['a'], the first match will be used i.e. order is random or
         list instance order driven.
     """
-    pipe = Pipeline([
-        node(
-            func=func,
-            inputs=(
-                tolist(partitioned_input) + optionaltolist(configurator)
-                + tolist(other_inputs)
-            ),
-            outputs=partitioned_output,
-            name=name,
-        )
-    ])
+    pipe = Pipeline(
+        [
+            node(
+                func=func,
+                inputs=(
+                    tolist(partitioned_input)
+                    + optionaltolist(configurator)
+                    + tolist(other_inputs)
+                ),
+                outputs=partitioned_output,
+                name=name,
+            )
+        ]
+    )
 
     return multipipeline(
         pipe=pipe,

@@ -1,4 +1,5 @@
 """A DataSet that is partitioned into multiple DataSets."""
+
 from pathlib import PurePosixPath
 import posixpath
 from kedro.io import PartitionedDataSet
@@ -60,7 +61,8 @@ class PathSafePartitionedDataSet(PartitionedDataSet):
         subpath_parts = PurePosixPath(path).parts
         path_parts = PurePosixPath(self._normalized_path).parts
 
-        common_index = next((i for i, part in enumerate(path_parts)
-                             if part == subpath_parts[0]), 0)
+        common_index = next(
+            (i for i, part in enumerate(path_parts) if part == subpath_parts[0]), 0
+        )
         suffix = str(PurePosixPath(*path_parts[common_index:])) + posixpath.sep
-        return subpath.replace(suffix, '', 1)
+        return subpath.replace(suffix, "", 1)

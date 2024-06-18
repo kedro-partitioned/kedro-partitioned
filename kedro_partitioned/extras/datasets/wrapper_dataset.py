@@ -1,4 +1,5 @@
 """A DataSet that wraps another for overloading."""
+
 from kedro.io import AbstractDataSet
 from typing import Any, Dict, Type
 

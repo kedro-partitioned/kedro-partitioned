@@ -1,4 +1,5 @@
 """Utils for string manipulation."""
+
 from pathlib import Path, PosixPath, PurePath, PurePosixPath, WindowsPath
 from typing import Any
 from upath import UPath as _UPath
@@ -41,7 +42,7 @@ class UPath(_UPath):
             if path.is_absolute():
                 parts = path.parts
                 drive, parts = parts[0], (parts[1:] if len(parts) > 1 else [])
-                drive = drive.strip('\\')
+                drive = drive.strip("\\")
                 return PurePosixPath(drive, *parts)
             else:
                 return PurePosixPath(path)

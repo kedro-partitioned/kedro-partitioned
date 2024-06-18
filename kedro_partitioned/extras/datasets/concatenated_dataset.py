@@ -1,26 +1,17 @@
 """A DataSet that concatenates partitioned datasets."""
+
 from concurrent.futures import ThreadPoolExecutor
 import importlib
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Generic,
-    Iterable,
-    Tuple,
-    Type,
-    TypeVar,
-    Union
-)
+from typing import Any, Callable, Dict, Generic, Iterable, Tuple, Type, TypeVar, Union
 
 import pandas as pd
 from kedro_partitioned.io.path_safe_partitioned_dataset import (
-    PathSafePartitionedDataSet
+    PathSafePartitionedDataSet,
 )
 from kedro_partitioned.utils.other import filter_or_regex, identity, truthify
 from kedro_partitioned.utils.typing import PandasDataSets
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class ConcatenatedDataSet(PathSafePartitionedDataSet, Generic[T]):
@@ -58,7 +49,7 @@ class ConcatenatedDataSet(PathSafePartitionedDataSet, Generic[T]):
             filter partitions by its relative paths. Defaults to truthify.
     """
 
-    _IMPORTLIB_SEPARATOR = '.'
+    _IMPORTLIB_SEPARATOR = "."
 
     def __init__(
         self,
@@ -76,8 +67,16 @@ class ConcatenatedDataSet(PathSafePartitionedDataSet, Generic[T]):
         filter: Union[Callable[[str], bool], str] = truthify,
     ):
         """Initialize a ConcatenatedDataSet."""
-        super().__init__(path, dataset, filepath_arg, filename_suffix,
-                         credentials, load_args, fs_args, overwrite)
+        super().__init__(
+            path,
+            dataset,
+            filepath_arg,
+            filename_suffix,
+            credentials,
+            load_args,
+            fs_args,
+            overwrite,
+        )
         self.concat_func = self._parse_function(concat_func)
         self.preprocess = self._parse_function(preprocess)
         self.filter = filter_or_regex(self._parse_function(filter))
@@ -110,7 +109,7 @@ class ConcatenatedDataSet(PathSafePartitionedDataSet, Generic[T]):
         """
         try:
             if isinstance(fn, str):
-                if fn.startswith('lambda '):
+                if fn.startswith("lambda "):
                     return eval(fn)
                 elif cls._IMPORTLIB_SEPARATOR in fn:
                     module, func = fn.rsplit(cls._IMPORTLIB_SEPARATOR, 1)
@@ -222,7 +221,17 @@ class PandasConcatenatedDataSet(ConcatenatedDataSet[PandasDataSets]):
         filter: Union[Callable[[str], bool], str] = truthify,
     ):
         """Initialize a PandasConcatenatedDataSet."""
-        super().__init__(path, dataset, pd.concat, filepath_arg,
-                         filename_suffix, credentials, load_args,
-                         fs_args, overwrite, preprocess, preprocess_kwargs,
-                         filter)
+        super().__init__(
+            path,
+            dataset,
+            pd.concat,
+            filepath_arg,
+            filename_suffix,
+            credentials,
+            load_args,
+            fs_args,
+            overwrite,
+            preprocess,
+            preprocess_kwargs,
+            filter,
+        )

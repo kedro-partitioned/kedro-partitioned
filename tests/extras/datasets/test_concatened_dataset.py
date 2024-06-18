@@ -1,4 +1,5 @@
 """Tests for concatenated dataset."""
+
 from copy import deepcopy
 from functools import partial
 from typing import List
@@ -6,12 +7,12 @@ import pandas as pd
 import pytest
 from pytest_mock import MockFixture
 from kedro_partitioned.extras.datasets.concatenated_dataset import (
-    PandasConcatenatedDataSet
+    PandasConcatenatedDataSet,
 )
 
 from .mocked_dataset import MockedDataSet
 
-PARTITIONS = ['a/a', 'a/b', 'a/c']
+PARTITIONS = ["a/a", "a/b", "a/c"]
 
 
 @pytest.fixture(autouse=True)
@@ -21,10 +22,11 @@ def mock_load(mocker: MockFixture):
     Args:
         mocker (MockFixture): pytest-mock fixture
     """
+
     def _list(self: PandasConcatenatedDataSet) -> List[str]:
         return PARTITIONS
 
-    mocker.patch.object(PandasConcatenatedDataSet, '_list_partitions', _list)
+    mocker.patch.object(PandasConcatenatedDataSet, "_list_partitions", _list)
 
 
 @pytest.fixture()
@@ -34,9 +36,7 @@ def setup() -> partial:
     Returns:
         partial: partial function for setup
     """
-    return partial(
-        PandasConcatenatedDataSet, path='a/', dataset=MockedDataSet
-    )
+    return partial(PandasConcatenatedDataSet, path="a/", dataset=MockedDataSet)
 
 
 def test_load(setup: partial):
@@ -48,8 +48,9 @@ def test_load(setup: partial):
     dataset = setup()
     data: pd.DataFrame = dataset.load()
     assert len(data) == len(PARTITIONS) * len(MockedDataSet.EXAMPLE_DATA)
-    assert set(data['fruits'].unique().tolist()
-               ).issubset(set(MockedDataSet.EXAMPLE_DATA['fruits'].tolist()))
+    assert set(data["fruits"].unique().tolist()).issubset(
+        set(MockedDataSet.EXAMPLE_DATA["fruits"].tolist())
+    )
 
 
 def test_load_preprocess(setup: partial):
@@ -61,7 +62,7 @@ def test_load_preprocess(setup: partial):
     dataset = setup(preprocess=lambda x: x.assign(test=10))
     data: pd.DataFrame = dataset.load()
     assert len(data) == len(PARTITIONS) * len(MockedDataSet.EXAMPLE_DATA)
-    assert all(data['test'] == 10)
+    assert all(data["test"] == 10)
 
 
 def test_preprocess_lambda(setup: partial):
@@ -70,10 +71,10 @@ def test_preprocess_lambda(setup: partial):
     Args:
         setup (partial): partial function for setup
     """
-    dataset = setup(preprocess='lambda x: x.assign(test=10)')
+    dataset = setup(preprocess="lambda x: x.assign(test=10)")
     data: pd.DataFrame = dataset.load()
     assert len(data) == len(PARTITIONS) * len(MockedDataSet.EXAMPLE_DATA)
-    assert all(data['test'] == 10)
+    assert all(data["test"] == 10)
 
 
 def _add_test_col(x: pd.DataFrame) -> pd.DataFrame:
@@ -95,14 +96,13 @@ def test_preprocess_import(setup: partial):
         setup (partial): partial function for setup
     """
     dataset = setup(
-        preprocess='.'.join([
-            'tests', 'extras', 'datasets', 'test_concatened_dataset',
-            '_add_test_col'
-        ])
+        preprocess=".".join(
+            ["tests", "extras", "datasets", "test_concatened_dataset", "_add_test_col"]
+        )
     )
     data: pd.DataFrame = dataset.load()
     assert len(data) == len(PARTITIONS) * len(MockedDataSet.EXAMPLE_DATA)
-    assert all(data['test'] == 10)
+    assert all(data["test"] == 10)
 
 
 def test_filter_regex(setup: partial):
@@ -111,7 +111,7 @@ def test_filter_regex(setup: partial):
     Args:
         setup (partial): partial function for setup
     """
-    dataset = setup(filter='[ac]')
+    dataset = setup(filter="[ac]")
     data: pd.DataFrame = dataset.load()
     assert len(data) == (len(PARTITIONS) - 1) * len(MockedDataSet.EXAMPLE_DATA)
 
@@ -122,7 +122,7 @@ def test_filter_lambda(setup: partial):
     Args:
         setup (partial): partial function for setup
     """
-    dataset = setup(filter='lambda x: \'b\' not in x')
+    dataset = setup(filter="lambda x: 'b' not in x")
     data: pd.DataFrame = dataset.load()
     assert len(data) == (len(PARTITIONS) - 1) * len(MockedDataSet.EXAMPLE_DATA)
 
@@ -136,7 +136,7 @@ def _filter_b(x: str) -> bool:
     Returns:
         bool: True if string does not contain 'b'
     """
-    return 'b' not in x
+    return "b" not in x
 
 
 def test_filter_import(setup: partial):
@@ -146,10 +146,9 @@ def test_filter_import(setup: partial):
         setup (partial): partial function for setup
     """
     dataset = setup(
-        filter='.'.join([
-            'tests', 'extras', 'datasets', 'test_concatened_dataset',
-            '_filter_b'
-        ])
+        filter=".".join(
+            ["tests", "extras", "datasets", "test_concatened_dataset", "_filter_b"]
+        )
     )
     data: pd.DataFrame = dataset.load()
     assert len(data) == (len(PARTITIONS) - 1) * len(MockedDataSet.EXAMPLE_DATA)
@@ -161,10 +160,10 @@ def test_load_preprocess_filter(setup: partial):
     Args:
         setup (partial): partial function for setup
     """
-    dataset = setup(preprocess=lambda x: x.assign(test=10), filter='[ac]')
+    dataset = setup(preprocess=lambda x: x.assign(test=10), filter="[ac]")
     data: pd.DataFrame = dataset.load()
     assert len(data) == (len(PARTITIONS) - 1) * len(MockedDataSet.EXAMPLE_DATA)
-    assert all(data['test'] == 10)
+    assert all(data["test"] == 10)
 
 
 def test_no_partitions(setup: partial):

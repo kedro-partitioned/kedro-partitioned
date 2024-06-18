@@ -1,4 +1,5 @@
 """Hook to enable MultiNode."""
+
 from copy import deepcopy
 from typing import Dict, Any
 from kedro.pipeline import Pipeline
@@ -74,32 +75,34 @@ class MultiNodeEnabler:
                     node.original_partitioned_outputs, node.partitioned_outputs
                 ):
                     partitioned = catalog._get_dataset(original)
-                    assert isinstance(partitioned, PartitionedDataSet),\
-                        'multinode cannot have non partitioned outputs'
+                    assert isinstance(
+                        partitioned, PartitionedDataSet
+                    ), "multinode cannot have non partitioned outputs"
                     catalog.add(slice, deepcopy(partitioned))
 
                 for input in node.original_partitioned_inputs:
                     partitioned = catalog._get_dataset(input)
-                    assert isinstance(partitioned, PartitionedDataSet),\
-                        f'multinode received "{input}" as a '\
-                        f'`PartitionedDataSet`, although it is a '\
-                        f'`{type(partitioned)}`'
+                    assert isinstance(partitioned, PartitionedDataSet), (
+                        f'multinode received "{input}" as a '
+                        f"`PartitionedDataSet`, although it is a "
+                        f"`{type(partitioned)}`"
+                    )
 
             elif isinstance(node, _SlicerNode):
                 partitioned = catalog._get_dataset(node.original_output)
-                assert isinstance(partitioned, PartitionedDataSet),\
-                    f'multinode received "{node.original_output}" as a '\
-                    f'`PartitionedDataSet`, although it is a '\
-                    f'`{type(partitioned)}`'
+                assert isinstance(partitioned, PartitionedDataSet), (
+                    f'multinode received "{node.original_output}" as a '
+                    f"`PartitionedDataSet`, although it is a "
+                    f"`{type(partitioned)}`"
+                )
                 catalog.add(
                     node.json_output,
                     JSONDataSet(
                         filepath=str(
-                            UPath(partitioned._path)
-                            / f'{node.json_output}.json'
+                            UPath(partitioned._path) / f"{node.json_output}.json"
                         ),
-                        credentials=partitioned._credentials
-                    )
+                        credentials=partitioned._credentials,
+                    ),
                 )
 
 

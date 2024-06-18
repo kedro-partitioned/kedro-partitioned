@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from typing import Any, Dict, Tuple
 from kedro_partitioned.io.path_safe_partitioned_dataset import (
-    PathSafePartitionedDataSet
+    PathSafePartitionedDataSet,
 )
 
 
