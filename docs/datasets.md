@@ -1,15 +1,15 @@
 # Datasets
 
-## Concatenated DataSet
+## Concatenated Dataset
 
 ```{eval-rst}
 .. autoclass::
-   kedro_partitioned.extras.datasets.concatenated_dataset.ConcatenatedDataSet
+   kedro_partitioned.extras.datasets.concatenated_dataset.ConcatenatedDataset
 ```
 
-## Pandas Concatenated DataSet
+## Pandas Concatenated Dataset
 
-Pandas concatenated dataset is a sugar for the `PartitionedDataSet` that concatenates all dataframe partitions into a single dataframe.
+Pandas concatenated dataset is a sugar for the `PartitionedDataset` that concatenates all dataframe partitions into a single dataframe.
 
 For example, let's say you have a folder structure like this:
 
@@ -24,26 +24,26 @@ And you wan't to load all the files as a single dataset. In this case, you could
 
 ```yaml
 clients:
-  type: kedro_partitioned.dataset.PandasConcatenatedDataSet
+  type: kedro_partitioned.dataset.PandasConcatenatedDataset
   path: clients
   dataset:
-    type: pandas.CSVDataSet
+    type: pandas.CSVDataset
 ```
 
 Then, the clients dataset will be all the concatenated dataframes from the `clients/*.csv` files.
 
 ```{eval-rst}
 .. autoclass::
-   kedro_partitioned.extras.datasets.concatenated_dataset.PandasConcatenatedDataSet
+   kedro_partitioned.extras.datasets.concatenated_dataset.PandasConcatenatedDataset
 ```
 
-## Path Safe Partitioned DataSet
+## Path Safe Partitioned Dataset
 
 ```{eval-rst}
 .. autoclass::
-   kedro_partitioned.io.PathSafePartitionedDataSet
+   kedro_partitioned.io.PathSafePartitionedDataset
 ```
 
 ```{note}
-it is recommended to use PathSafePartitionedDataSet instead of PartitionedDataSet, for every step parallelism scenario. This is important because handling path safely is mandatory for the multinode partitioned dataset zip feature to work properly.
+it is recommended to use PathSafePartitionedDataset instead of PartitionedDataset, for every step parallelism scenario. This is important because handling path safely is mandatory for the multinode partitioned dataset zip feature to work properly.
 ```

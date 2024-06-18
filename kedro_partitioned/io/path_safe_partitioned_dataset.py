@@ -1,27 +1,27 @@
-"""A DataSet that is partitioned into multiple DataSets."""
+"""A Dataset that is partitioned into multiple Datasets."""
 
 from pathlib import PurePosixPath
 import posixpath
-from kedro.io import PartitionedDataSet
+from kedro_datasets.partitions import PartitionedDataset
 
 
-class PathSafePartitionedDataSet(PartitionedDataSet):
-    """Partitioned DataSet, but handles mixed relative and absolute paths.
+class PathSafePartitionedDataset(PartitionedDataset):
+    """Partitioned Dataset, but handles mixed relative and absolute paths.
 
     For example, if the ffspec package you are using returns relative paths
     from a glob, but the path you specified is absolute, this dataset will be
     able to handle it.
 
     Example:
-        >>> ds = PathSafePartitionedDataSet(
+        >>> ds = PathSafePartitionedDataset(
         ...          path="http://abc.core/path/to",  # absolute
-        ...          dataset="pandas.CSVDataSet",)
+        ...          dataset="pandas.CSVDataset",)
         >>> ds._path_to_partition("path/to/partition1.csv")  # relative
         'partition1.csv'
 
-        >>> ds = PartitionedDataSet(
+        >>> ds = PartitionedDataset(
         ...          path="http://abc.core/path/to",  # absolute
-        ...          dataset="pandas.CSVDataSet",)
+        ...          dataset="pandas.CSVDataset",)
         >>> ds._path_to_partition("path/to/partition1.csv")  # relative
         'path/to/partition1.csv'
     """
@@ -36,15 +36,15 @@ class PathSafePartitionedDataSet(PartitionedDataSet):
             str: relative subpath from the partitioned dataset path
 
         Example:
-            >>> ds = PathSafePartitionedDataSet(
+            >>> ds = PathSafePartitionedDataset(
             ...          path="http://abc.core/path/to",
-            ...          dataset="pandas.CSVDataSet",)
+            ...          dataset="pandas.CSVDataset",)
             >>> ds._path_to_partition("http://abc.core/path/to/partition1.csv")
             'partition1.csv'
 
-            >>> ds = PathSafePartitionedDataSet(
+            >>> ds = PathSafePartitionedDataset(
             ...          path="data/path",
-            ...          dataset="pandas.CSVDataSet",)
+            ...          dataset="pandas.CSVDataset",)
             >>> ds._path_to_partition("data/path/partition1.csv")
             'partition1.csv'
 

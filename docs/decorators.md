@@ -2,7 +2,7 @@
 
 ## Concat Partitions
 
-This decorator is used to concatenate the partitions of a dataset into a single dataset. It is similar to the `ConcatenatedDataSet`, but can be used as a decorator in a node.
+This decorator is used to concatenate the partitions of a dataset into a single dataset. It is similar to the `ConcatenatedDataset`, but can be used as a decorator in a node.
 
 ```{eval-rst}
 .. autofunction::

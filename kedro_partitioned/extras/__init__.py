@@ -1,15 +1,15 @@
 """Package for non abstract datasets."""
 
 from .datasets.concatenated_dataset import (
-    ConcatenatedDataSet,
-    PandasConcatenatedDataSet,
+    ConcatenatedDataset,
+    PandasConcatenatedDataset,
 )
-from .datasets.nullable_dataset import NullableDataSet
-from .datasets.threaded_partitioned_dataset import ThreadedPartitionedDataSet
+from .datasets.nullable_dataset import NullableDataset
+from .datasets.threaded_partitioned_dataset import ThreadedPartitionedDataset
 
 __all__ = [
-    "ConcatenatedDataSet",
-    "PandasConcatenatedDataSet",
-    "NullableDataSet",
-    "ThreadedPartitionedDataSet",
+    "ConcatenatedDataset",
+    "PandasConcatenatedDataset",
+    "NullableDataset",
+    "ThreadedPartitionedDataset",
 ]
