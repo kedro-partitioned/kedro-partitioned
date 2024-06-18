@@ -1,18 +1,18 @@
-"""A DataSet that wraps another for overloading."""
+"""A Dataset that wraps another for overloading."""
 
-from kedro.io import AbstractDataSet
+from kedro.io import AbstractDataset
 from typing import Any, Dict, Type
 
 
-class WrapperDataSet(AbstractDataSet):
-    """Proxies methods of a specified DataSet.
+class WrapperDataset(AbstractDataset):
+    """Proxies methods of a specified Dataset.
 
     Example:
-        >>> from kedro.io import MemoryDataSet
+        >>> from kedro.io import MemoryDataset
 
-        All kwargs are passed to the wrapped DataSet
+        All kwargs are passed to the wrapped Dataset
 
-        >>> d = WrapperDataSet(dataset=MemoryDataSet, data=1)
+        >>> d = WrapperDataset(dataset=MemoryDataset, data=1)
         >>> d.load()
         1
         >>> d.save(3)
@@ -25,11 +25,11 @@ class WrapperDataSet(AbstractDataSet):
         >>> d.release()
     """
 
-    def __init__(self, dataset: Type[AbstractDataSet], **kwargs: Any):
-        """Initialize a new WrapperDataSet.
+    def __init__(self, dataset: Type[AbstractDataset], **kwargs: Any):
+        """Initialize a new WrapperDataset.
 
         Args:
-            dataset (Type[AbstractDataSet]): The DataSet to wrap.
+            dataset (Type[AbstractDataset]): The Dataset to wrap.
         """
         self._dataset_type = dataset
         self._dataset = dataset(**kwargs)

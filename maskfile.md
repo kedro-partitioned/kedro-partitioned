@@ -14,7 +14,7 @@ The list of available commands can be found using `mask help`.
 python -m venv .venv
 source .venv/bin/activate
 pip install uv
-find ./requirements -name "*.txt" | xargs printf -- '-r %s\n' | xargs uv pip install
+uv pip sync <(find ./requirements -name "*.txt" | xargs uv pip compile)
 uv pip install -e . --no-deps
 pre-commit install
 ```

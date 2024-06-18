@@ -1,5 +1,5 @@
 """Package for datasets."""
 
-from .threaded_partitioned_dataset import ThreadedPartitionedDataSet
+from .threaded_partitioned_dataset import ThreadedPartitionedDataset
 
-__all__ = ["ThreadedPartitionedDataSet"]
+__all__ = ["ThreadedPartitionedDataset"]

@@ -7,26 +7,26 @@ import pandas as pd
 import pytest
 from pytest_mock import MockFixture
 from kedro_partitioned.extras.datasets.concatenated_dataset import (
-    PandasConcatenatedDataSet,
+    PandasConcatenatedDataset,
 )
 
-from .mocked_dataset import MockedDataSet
+from .mocked_dataset import MockedDataset
 
 PARTITIONS = ["a/a", "a/b", "a/c"]
 
 
 @pytest.fixture(autouse=True)
 def mock_load(mocker: MockFixture):
-    """Overwrites PandasConcatenatedDataSet load.
+    """Overwrites PandasConcatenatedDataset load.
 
     Args:
         mocker (MockFixture): pytest-mock fixture
     """
 
-    def _list(self: PandasConcatenatedDataSet) -> List[str]:
+    def _list(self: PandasConcatenatedDataset) -> List[str]:
         return PARTITIONS
 
-    mocker.patch.object(PandasConcatenatedDataSet, "_list_partitions", _list)
+    mocker.patch.object(PandasConcatenatedDataset, "_list_partitions", _list)
 
 
 @pytest.fixture()
@@ -36,7 +36,7 @@ def setup() -> partial:
     Returns:
         partial: partial function for setup
     """
-    return partial(PandasConcatenatedDataSet, path="a/", dataset=MockedDataSet)
+    return partial(PandasConcatenatedDataset, path="a/", dataset=MockedDataset)
 
 
 def test_load(setup: partial):
@@ -47,9 +47,9 @@ def test_load(setup: partial):
     """
     dataset = setup()
     data: pd.DataFrame = dataset.load()
-    assert len(data) == len(PARTITIONS) * len(MockedDataSet.EXAMPLE_DATA)
+    assert len(data) == len(PARTITIONS) * len(MockedDataset.EXAMPLE_DATA)
     assert set(data["fruits"].unique().tolist()).issubset(
-        set(MockedDataSet.EXAMPLE_DATA["fruits"].tolist())
+        set(MockedDataset.EXAMPLE_DATA["fruits"].tolist())
     )
 
 
@@ -61,7 +61,7 @@ def test_load_preprocess(setup: partial):
     """
     dataset = setup(preprocess=lambda x: x.assign(test=10))
     data: pd.DataFrame = dataset.load()
-    assert len(data) == len(PARTITIONS) * len(MockedDataSet.EXAMPLE_DATA)
+    assert len(data) == len(PARTITIONS) * len(MockedDataset.EXAMPLE_DATA)
     assert all(data["test"] == 10)
 
 
@@ -73,7 +73,7 @@ def test_preprocess_lambda(setup: partial):
     """
     dataset = setup(preprocess="lambda x: x.assign(test=10)")
     data: pd.DataFrame = dataset.load()
-    assert len(data) == len(PARTITIONS) * len(MockedDataSet.EXAMPLE_DATA)
+    assert len(data) == len(PARTITIONS) * len(MockedDataset.EXAMPLE_DATA)
     assert all(data["test"] == 10)
 
 
@@ -101,7 +101,7 @@ def test_preprocess_import(setup: partial):
         )
     )
     data: pd.DataFrame = dataset.load()
-    assert len(data) == len(PARTITIONS) * len(MockedDataSet.EXAMPLE_DATA)
+    assert len(data) == len(PARTITIONS) * len(MockedDataset.EXAMPLE_DATA)
     assert all(data["test"] == 10)
 
 
@@ -113,7 +113,7 @@ def test_filter_regex(setup: partial):
     """
     dataset = setup(filter="[ac]")
     data: pd.DataFrame = dataset.load()
-    assert len(data) == (len(PARTITIONS) - 1) * len(MockedDataSet.EXAMPLE_DATA)
+    assert len(data) == (len(PARTITIONS) - 1) * len(MockedDataset.EXAMPLE_DATA)
 
 
 def test_filter_lambda(setup: partial):
@@ -124,7 +124,7 @@ def test_filter_lambda(setup: partial):
     """
     dataset = setup(filter="lambda x: 'b' not in x")
     data: pd.DataFrame = dataset.load()
-    assert len(data) == (len(PARTITIONS) - 1) * len(MockedDataSet.EXAMPLE_DATA)
+    assert len(data) == (len(PARTITIONS) - 1) * len(MockedDataset.EXAMPLE_DATA)
 
 
 def _filter_b(x: str) -> bool:
@@ -151,7 +151,7 @@ def test_filter_import(setup: partial):
         )
     )
     data: pd.DataFrame = dataset.load()
-    assert len(data) == (len(PARTITIONS) - 1) * len(MockedDataSet.EXAMPLE_DATA)
+    assert len(data) == (len(PARTITIONS) - 1) * len(MockedDataset.EXAMPLE_DATA)
 
 
 def test_load_preprocess_filter(setup: partial):
@@ -162,7 +162,7 @@ def test_load_preprocess_filter(setup: partial):
     """
     dataset = setup(preprocess=lambda x: x.assign(test=10), filter="[ac]")
     data: pd.DataFrame = dataset.load()
-    assert len(data) == (len(PARTITIONS) - 1) * len(MockedDataSet.EXAMPLE_DATA)
+    assert len(data) == (len(PARTITIONS) - 1) * len(MockedDataset.EXAMPLE_DATA)
     assert all(data["test"] == 10)
 
 

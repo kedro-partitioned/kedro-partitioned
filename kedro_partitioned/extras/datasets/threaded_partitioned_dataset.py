@@ -1,15 +1,15 @@
-"""A PartitionedDataSet that saves asynchronously."""
+"""A PartitionedDataset that saves asynchronously."""
 
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from typing import Any, Dict, Tuple
 from kedro_partitioned.io.path_safe_partitioned_dataset import (
-    PathSafePartitionedDataSet,
+    PathSafePartitionedDataset,
 )
 
 
-class ThreadedPartitionedDataSet(PathSafePartitionedDataSet):
-    """Same implementation as the PartitionedDataSet, but using threads."""
+class ThreadedPartitionedDataset(PathSafePartitionedDataset):
+    """Same implementation as the PartitionedDataset, but using threads."""
 
     def _save_partition(self, partition: Tuple[str, Any]):
         self._logger.info(f"Saving partition {partition[0]}")

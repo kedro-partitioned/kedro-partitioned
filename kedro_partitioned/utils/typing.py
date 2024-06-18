@@ -1,9 +1,9 @@
 """Package for type annotations."""
 
 from typing import Callable, Tuple, TypeVar, Union
-from kedro.extras.datasets.pandas import CSVDataSet, ExcelDataSet, ParquetDataSet
+from kedro_datasets.pandas import CSVDataset, ExcelDataset, ParquetDataset
 
 T = TypeVar("T")
 Args = Tuple[T]
 IsFunction = Callable[[T], bool]
-PandasDataSets = Union[CSVDataSet, ExcelDataSet, ParquetDataSet]
+PandasDatasets = Union[CSVDataset, ExcelDataset, ParquetDataset]

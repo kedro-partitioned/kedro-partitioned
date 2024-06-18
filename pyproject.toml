@@ -31,7 +31,7 @@ exclude = ["docs", "tests"]
 
 [tool.pytest.ini_options]
 addopts = """
--x tests kedro_partitioned \
+tests kedro_partitioned \
 --disable-warnings \
 --capture=tee-sys \
 --doctest-modules \
