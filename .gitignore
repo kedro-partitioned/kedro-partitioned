@@ -141,3 +141,5 @@ junit
 .trunk
 .vscode
 tmp
+
+.ruff_cache
