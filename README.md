@@ -1,22 +1,19 @@
 # Kedro Partitioned
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ProjetaAi/kedro-partitioned/Build)
-![Codecov](https://img.shields.io/codecov/c/gh/ProjetaAi/kedro-partitioned)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ProjetaAi/kedro-partitioned/Release?label=release)
+[![Build](https://github.com/nickolasrm/kedro-partitioned/actions/workflows/build.yml/badge.svg)](https://github.com/nickolasrm/kedro-partitioned/actions/workflows/build.yml)
+[![codecov](https://codecov.io/github/nickolasrm/kedro-partitioned/graph/badge.svg?token=DL86bQnQyQ)](https://codecov.io/github/nickolasrm/kedro-partitioned)
+[![Documentation Status](https://readthedocs.org/projects/kedro-partitioned/badge/?version=stable)](https://kedro-partitioned.readthedocs.io/en/stable/?badge=stable)
 ![PyPI](https://img.shields.io/pypi/v/kedro-partitioned)
-
 
 ## Introduction
 
-Kedro Plugin focused on extending and helping the user to process partitioned data.
+Kedro Plugin for extending partitioned data support.
 
 ## Usage:
 
 Read our [docs](https://kedro-partitioned.readthedocs.io/).
 
-## Getting Started
-
-Execute this command in your terminal:
+Or just go straight to the installation:
 
 ```bash
 pip install kedro-partitioned
@@ -24,18 +21,15 @@ pip install kedro-partitioned
 
 ## Contribute
 
-If you want to contribute with this package, do the following steps:
+If you want to contribute to this package, perform the following steps:
 
 1. Fork the repo
 2. Clone it in your machine
-3. Install with `pip install .[dev]`
-4. Run `pre-commit install` in the project root
-5. Make your changes
-6. Create a pr for us <3
-
-> Note: Remember to create unit tests and to run pytest and flake8 before creating a pr
+3. Follow [maskfile.md](./maskfile.md) description under the main title
+4. Make your changes
+5. Open a PR for review
 
 ## Credits
 
-* Gabriel Daiha Alves [@gabrieldaiha](https://github.com/nickolasrm)
-* Nickolas da Rocha Machado [@nickolasrm](https://github.com/gabrieldaiha)
+- Gabriel Daiha Alves [@gabrieldaiha](https://github.com/nickolasrm)
+- Nickolas da Rocha Machado [@nickolasrm](https://github.com/gabrieldaiha)

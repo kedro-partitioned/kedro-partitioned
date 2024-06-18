@@ -1,4 +1,5 @@
 """Decorators for node funcs."""
+
 from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
 import posixpath
@@ -148,6 +149,7 @@ def concat_partitions(
         0  2
     """
     if filter is None:
+
         def filter_fn(_: str) -> bool:
             return True
     elif isinstance(filter, str):
@@ -157,25 +159,21 @@ def concat_partitions(
             return bool(regex.search(x))
     else:
         filter_fns = [
-            regex_filter(x) if isinstance(x, str) else x
-            for x in tolist(filter)
+            regex_filter(x) if isinstance(x, str) else x for x in tolist(filter)
         ]
 
         def filter_fn(x: str) -> bool:
             return all([fn(x) for fn in filter_fns])
 
     def decorator(f: Callable) -> Callable:
-
         @wraps(f)
         @kwargs_only(f)
         def wrapper(**kwargs: Any) -> Any:
-            loaders_dict: Dict[str, Callable[[], pd.DataFrame]] =\
-                kwargs[partitioned_arg]
+            loaders_dict: Dict[str, Callable[[], pd.DataFrame]] = kwargs[
+                partitioned_arg
+            ]
             if len(loaders_dict) > 0:
-                loaders_dict = {
-                    k: v
-                    for k, v in loaders_dict.items() if filter_fn(k)
-                }
+                loaders_dict = {k: v for k, v in loaders_dict.items() if filter_fn(k)}
 
                 if len(loaders_dict) == 0:  # filter removed everything
                     partitions = [pd.DataFrame()]
@@ -185,14 +183,18 @@ def concat_partitions(
                         partitions = list(
                             pool.map(
                                 lambda x: func(
-                                    x(), **{
+                                    x(),
+                                    **{
                                         k: v
                                         for k, v in kwargs.items()
                                         if k in func_args
-                                    }), loaders))
+                                    },
+                                ),
+                                loaders,
+                            )
+                        )
 
-                kwargs[partitioned_arg] =\
-                    pd.concat(partitions).reset_index(drop=True)
+                kwargs[partitioned_arg] = pd.concat(partitions).reset_index(drop=True)
             else:  # no partitions into the folder
                 kwargs[partitioned_arg] = pd.DataFrame()
             return f(**kwargs)
@@ -219,9 +221,11 @@ def list_output(f: Callable) -> Callable:
         >>> foo()
         [3]
     """
+
     @wraps(f)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         return [f(*args, **kwargs)]
+
     return wrapper
 
 
@@ -229,7 +233,7 @@ def split_into_partitions(
     keys: Union[str, Iterable[str]],
     folder_template: str = None,
     filename_template: str = None,
-    output: Union[str, int] = 0
+    output: Union[str, int] = 0,
 ) -> Callable:
     """Splits a DataFrame function output into a dict <group_by_keys>: <group>.
 
@@ -278,9 +282,9 @@ def split_into_partitions(
         keys = [keys]
 
     if folder_template is None:
-        folder_template = posixpath.join(*['{' + str(k) + '}' for k in keys])
+        folder_template = posixpath.join(*["{" + str(k) + "}" for k in keys])
     if filename_template is None:
-        filename_template = '_'.join(['{' + str(k) + '}' for k in keys])
+        filename_template = "_".join(["{" + str(k) + "}" for k in keys])
 
     def decorator(f: Callable) -> Callable:
         @wraps(f)
@@ -297,10 +301,9 @@ def split_into_partitions(
             template = posixpath.join(folder_template, filename_template)
 
             splitted = {
-                template.format(**{
-                    unit: key[ind]
-                    for ind, unit in enumerate(keys)
-                }): group
+                template.format(
+                    **{unit: key[ind] for ind, unit in enumerate(keys)}
+                ): group
                 for key, group in df.groupby(keys)
             }
 
@@ -309,5 +312,7 @@ def split_into_partitions(
             else:
                 r[output] = splitted
             return r
+
         return wrapper
+
     return decorator

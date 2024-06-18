@@ -1,0 +1,4 @@
+kedro>=0.18,<0.19
+universal_pathlib>=0.2,<1
+typing_extensions>=4,<5
+pandas>=1,<3

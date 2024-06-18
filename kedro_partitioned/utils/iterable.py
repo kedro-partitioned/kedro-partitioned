@@ -1,4 +1,5 @@
 """Utils for iterable manipulation."""
+
 from typing import Iterable, List, Tuple, Union
 from kedro_partitioned.utils.typing import T, IsFunction
 
@@ -67,8 +68,9 @@ def optionaltolist(val: T) -> List[T]:
         return tolist(val)
 
 
-def partition(filter_fn: IsFunction[T],
-              iterable: Iterable[T]) -> Tuple[List[T], List[T]]:
+def partition(
+    filter_fn: IsFunction[T], iterable: Iterable[T]
+) -> Tuple[List[T], List[T]]:
     """Split an iterable in two lists, given a boolean function.
 
     This function splits a list in two lists, one containing the ones that

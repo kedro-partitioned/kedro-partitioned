@@ -1,4 +1,5 @@
 """Fake DataSet for testing."""
+
 from __future__ import annotations
 from typing import Any, Dict
 from kedro.io.core import AbstractDataSet
@@ -8,10 +9,7 @@ import pandas as pd
 class MockedDataSet(AbstractDataSet):
     """Fake DataSet for testing."""
 
-    EXAMPLE_DATA = pd.DataFrame({
-        'fruits': ['Apple', 'Pear'],
-        'price': [10, 15]
-    })
+    EXAMPLE_DATA = pd.DataFrame({"fruits": ["Apple", "Pear"], "price": [10, 15]})
 
     dfs = {}
 
@@ -34,11 +32,11 @@ class MockedDataSet(AbstractDataSet):
         return MockedDataSet()
 
     def _save(self, df: Any, *args: Any, **kwargs: Any):
-        self.dfs[self.kwargs['filepath']] = df
+        self.dfs[self.kwargs["filepath"]] = df
 
     def _load(self, *args: Any, **kwargs: Any) -> Any:
-        if self.kwargs['filepath'] in self.dfs:
-            return self.dfs[self.kwargs['filepath']]
+        if self.kwargs["filepath"] in self.dfs:
+            return self.dfs[self.kwargs["filepath"]]
         else:
             return self.EXAMPLE_DATA
 

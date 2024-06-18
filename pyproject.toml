@@ -1,6 +1,33 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = ["setuptools>=45.0", "wheel"]
+requires = ["setuptools>=61.0"]
+
+[project]
+name = "kedro-partitioned"
+description = 'Kedro plugin extending partitioned dataset support.'
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { file = "LICENSE" }
+authors = [
+    { name = "Nickolas da Rocha Machado", email = "nickolasrochamachado@gmail.com" },
+    { name = "Gabriel Daiha Alves" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dynamic = ["version", "dependencies"]
+
+[project.entry-points."kedro.hooks"]
+multinode_enabler = "kedro_partitioned.plugins:multinode_enabler"
+
+[tool.setuptools.dynamic]
+version = { attr = "kedro_partitioned.__version__" }
+dependencies = { file = "requirements/requirements.txt" }
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["kedro_partitioned"]
+exclude = ["docs", "tests"]
 
 [tool.pytest.ini_options]
 addopts = """
@@ -18,13 +45,3 @@ addopts = """
 exclude_lines = ["pragma: no cover", "raise NotImplementedError"]
 fail_under = 0
 show_missing = true
-
-[tool.yapf]
-based_on_style = "pep8"
-align_closing_bracket_with_visual_indent = true
-allow_multiline_dictionary_keys = true
-coalesce_brackets = true
-dedent_closing_brackets = true
-split_arguments_when_comma_terminated = true
-allow_split_before_dict_value = false
-split_before_arithmetic_operator = true

@@ -85,10 +85,9 @@ class NullableDataSet(WrapperDataSet):
         Null
     """
 
-    def __init__(self,
-                 dataset: Type[AbstractDataSet],
-                 verbose: bool = True,
-                 **kwargs: Any):
+    def __init__(
+        self, dataset: Type[AbstractDataSet], verbose: bool = True, **kwargs: Any
+    ):
         """Initializes a new instance of `NullableDataSet`.
 
         Args:
@@ -101,11 +100,10 @@ class NullableDataSet(WrapperDataSet):
 
     @property
     def _filepath(self) -> PurePosixPath:
-        if hasattr(self._dataset, '_filepath'):
+        if hasattr(self._dataset, "_filepath"):
             return self._dataset._filepath
         else:
-            raise KeyError(
-                f'"_filepath" property doesn\'t exist in {self._dataset}')
+            raise KeyError(f'"_filepath" property doesn\'t exist in {self._dataset}')
 
     def save(self, data: Any):
         """Saves data to the underlying DataSet.
@@ -116,7 +114,8 @@ class NullableDataSet(WrapperDataSet):
         if data is Null:
             if self._verbose:
                 self._logger.warning(
-                    f'Received `Null` while saving into "{self._filepath}"')
+                    f'Received `Null` while saving into "{self._filepath}"'
+                )
         else:
             super().save(data)
 
@@ -130,6 +129,5 @@ class NullableDataSet(WrapperDataSet):
             return super().load()
         except Exception:
             if self._verbose:
-                self._logger.warning(
-                    f'Could not load DataSet from "{self._filepath}"')
+                self._logger.warning(f'Could not load DataSet from "{self._filepath}"')
             return Null
