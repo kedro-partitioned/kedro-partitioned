@@ -25,6 +25,8 @@ jobs:
         uses: python-semantic-release/python-semantic-release@v9.8.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          ssh_public_signing_key: ${{ secrets.BOT_PUSH_SSH_PUB }}
+          ssh_private_signing_key: ${{ secrets.BOT_PUSH_SSH }}
           changelog: false
 
       - name: Publish package to PyPI
