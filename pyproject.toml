@@ -45,3 +45,12 @@ tests kedro_partitioned \
 exclude_lines = ["pragma: no cover", "raise NotImplementedError"]
 fail_under = 0
 show_missing = true
+
+[tool.semantic_release]
+version_variables = ["kedro_partitioned/__init__.py:__version__"]
+build_command = "mask build"
+
+[tool.semantic_release.branches.main]
+match = "main"
+prerelease_token = "rc"
+prerelease = false
