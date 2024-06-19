@@ -54,3 +54,8 @@ build_command = "mask build"
 match = "main"
 prerelease_token = "rc"
 prerelease = false
+
+[tool.semantic_release.branches.ci]
+match = "ci"
+prerelease_token = "rc"
+prerelease = true
