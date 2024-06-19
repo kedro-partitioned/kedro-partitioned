@@ -40,7 +40,7 @@ jobs:
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
 
-      - name: Publish package to GitHub Release
+      - name: "Publish package to GitHub Release"
         uses: python-semantic-release/upload-to-gh-release@v9.8.2
         if: steps.release.outputs.released == 'true'
         with:
