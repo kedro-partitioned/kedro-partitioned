@@ -1,3 +1,3 @@
 """Kedro-partitioned package."""
 
-__version__ = "0.2.0-rc.2"
+__version__ = "0.2.0-rc.3"
