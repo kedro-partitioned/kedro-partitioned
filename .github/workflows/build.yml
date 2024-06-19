@@ -23,9 +23,9 @@ jobs:
         id: install-tool
         uses: jcwillox/install-tool-action@v1
         with:
-          version: "0.11.4"
           repo: "jacobdeichert/mask"
-          download_url: "/releases/download/mask/{{version}}/mask-{{version}}-x86_64-unknown-linux-gnu.zip"
+          download_url: "/releases/download/mask/0.11.4/mask-0.11.4-x86_64-unknown-linux-gnu.zip"
+          bin_path: "mask-0.11.4-x86_64-unknown-linux-gnu"
 
       - name: Run CI
         run: mask ci
