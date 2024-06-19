@@ -26,7 +26,7 @@ dependencies = { file = "requirements/requirements.txt" }
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["kedro_partitioned"]
+include = ["kedro_partitioned*"]
 exclude = ["docs", "tests"]
 
 [tool.pytest.ini_options]
