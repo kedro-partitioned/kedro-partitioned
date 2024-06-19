@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - ci
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    concurrency: release
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - uses: wow-actions/use-app-token@v2
+        id: app_token
+        with:
+          app_id: ${{ secrets.BOT_APP_ID }}
+          private_key: ${{ secrets.BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ env.BOT_TOKEN }}
+
+      - name: Python Semantic Release
+        id: release
+        uses: python-semantic-release/python-semantic-release@v9.8.2
+        with:
+          github_token: ${{ env.BOT_TOKEN }}
+          changelog: false
+
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.9.0
+        if: steps.release.outputs.released == 'true' && github.ref == 'refs/heads/main'
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+      - name: "Publish package to GitHub Release"
+        uses: python-semantic-release/upload-to-gh-release@v9.8.2
+        if: steps.release.outputs.released == 'true'
+        with:
+          github_token: ${{ env.BOT_TOKEN }}
+          tag: ${{ steps.release.outputs.tag }}

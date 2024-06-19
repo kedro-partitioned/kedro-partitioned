@@ -106,13 +106,3 @@ echo "Installing deps..." && \
 uv pip install -r requirements/requirements.txt -r requirements/requirements-test.txt && \
 echo "Running tests..." && mask test pytest && echo "OK"
 ```
-
-## cd (api_token)
-
-> Run deployment routines
-
-```bash
-mask build && \
-cat requirements/requirements-dev.txt | grep twine | xargs pip install && \
-mask publish $api_token --prod
-```

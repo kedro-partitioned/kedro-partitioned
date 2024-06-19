@@ -45,3 +45,19 @@ tests kedro_partitioned \
 exclude_lines = ["pragma: no cover", "raise NotImplementedError"]
 fail_under = 0
 show_missing = true
+
+[tool.semantic_release]
+version_variables = ["kedro_partitioned/__init__.py:__version__"]
+build_command = "pip wheel --no-deps -w dist ."
+commit_message = "{version} [skip ci]\n\nUpdating versions"
+commit_author = "kedro-partitioned-bot <kedro-partitioned-bot>"
+
+[tool.semantic_release.branches.main]
+match = "main"
+prerelease_token = "rc"
+prerelease = false
+
+[tool.semantic_release.branches.ci]
+match = "ci"
+prerelease_token = "rc"
+prerelease = true
