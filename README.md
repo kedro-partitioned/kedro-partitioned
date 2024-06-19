@@ -1,7 +1,7 @@
 # Kedro Partitioned
 
 [![Build](https://github.com/nickolasrm/kedro-partitioned/actions/workflows/build.yml/badge.svg)](https://github.com/nickolasrm/kedro-partitioned/actions/workflows/build.yml)
-[![codecov](https://codecov.io/github/nickolasrm/kedro-partitioned/graph/badge.svg?token=DL86bQnQyQ)](https://codecov.io/github/nickolasrm/kedro-partitioned)
+[![codecov](https://codecov.io/gh/kedro-partitioned/kedro-partitioned/graph/badge.svg?token=DL86bQnQyQ)](https://codecov.io/gh/kedro-partitioned/kedro-partitioned)
 [![Documentation Status](https://readthedocs.org/projects/kedro-partitioned/badge/?version=stable)](https://kedro-partitioned.readthedocs.io/en/stable/?badge=stable)
 ![PyPI](https://img.shields.io/pypi/v/kedro-partitioned)
 
