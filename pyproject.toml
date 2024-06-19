@@ -50,6 +50,7 @@ show_missing = true
 version_variables = ["kedro_partitioned/__init__.py:__version__"]
 build_command = "pip wheel --no-deps -w dist ."
 commit_message = "{version} [skip ci]\n\nUpdating versions"
+commit_author = "kedro-partitioned-bot <kedro-partitioned-bot>"
 
 [tool.semantic_release.branches.main]
 match = "main"
