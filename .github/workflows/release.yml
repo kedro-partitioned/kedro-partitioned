@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    concurrency: release
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Mask
+        id: install-tool
+        uses: jcwillox/install-tool-action@v1
+        with:
+          version: "0.11.4"
+          repo: "jacobdeichert/mask"
+          download_url: "/releases/download/mask/{{version}}/mask-{{version}}-x86_64-unknown-linux-gnu.zip"
+
+      - name: Python Semantic Release
+        id: release
+        uses: python-semantic-release/python-semantic-release@v9.8.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@v1
+        if: steps.release.outputs.released == 'true'
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+      - name: Publish package to GitHub Release
+        uses: python-semantic-release/upload-to-gh-release@v9.8.2
+        if: steps.release.outputs.released == 'true'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.release.outputs.tag }}
