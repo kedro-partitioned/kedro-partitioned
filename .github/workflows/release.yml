@@ -31,6 +31,7 @@ jobs:
         uses: python-semantic-release/python-semantic-release@v9.8.2
         with:
           github_token: ${{ env.BOT_TOKEN }}
+          git_committer_name: kedro-partitioned-bot
           changelog: false
 
       - name: Publish package to PyPI
