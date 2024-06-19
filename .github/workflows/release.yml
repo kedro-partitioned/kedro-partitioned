@@ -19,22 +19,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Mask
-        id: install-tool
-        uses: jcwillox/install-tool-action@v1
-        with:
-          repo: "jacobdeichert/mask"
-          download_url: "/releases/download/mask/0.11.4/mask-0.11.4-x86_64-unknown-linux-gnu.zip"
-          bin_path: "mask-0.11.4-x86_64-unknown-linux-gnu"
-
       - name: Python Semantic Release
         id: release
         uses: python-semantic-release/python-semantic-release@v9.8.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          changelog: false
 
       - name: Publish package to PyPI
-        uses: pypa/gh-action-pypi-publish@v1
+        uses: pypa/gh-action-pypi-publish@v1.9.0
         if: steps.release.outputs.released == 'true' && github.ref == 'refs/heads/main'
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
