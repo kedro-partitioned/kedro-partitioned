@@ -18,7 +18,7 @@ classifiers = [
 dynamic = ["version", "dependencies"]
 
 [project.entry-points."kedro.hooks"]
-multinode_enabler = "kedro_partitioned.plugins:multinode_enabler"
+multinode_enabler = "kedro_partitioned.plugin:multinode_enabler"
 
 [tool.setuptools.dynamic]
 version = { attr = "kedro_partitioned.__version__" }
