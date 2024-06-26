@@ -12,6 +12,85 @@ from kedro_partitioned.pipeline.decorators.helper_factory import regex_filter
 from kedro_partitioned.utils.typing import IsFunction
 from kedro_partitioned.utils.other import kwargs_only, identity
 from kedro_partitioned.utils.iterable import tolist
+from kedro_partitioned.utils.string import (
+    get_filepath_without_extension,
+)
+
+
+def multithread_partitions(
+    partitioned_args: List[str],
+):
+    """Decorator that multithread function with partitioned input.
+
+    Args:
+        partitioned_arg (str): func's partitioned dataset argument
+
+    Returns:
+        List[dict]
+
+    Example:
+        >>> fake_partitioned = {'subpath/aa.txt': lambda: 3, 'subpath/b.txt': lambda: 4, 'subpath/bccdd.txt': lambda: 4}
+
+        >>> @multithread_partitions(partitioned_arg='df')
+        ... def test_func(x):
+        ...     return x + 1
+
+        >>> test_func(test_dict)
+        [{'subpath/aa': 4, 'subpath/b': 5, 'subpath/bccdd': 5}]
+    """
+
+    def decorator(f: Callable) -> Callable:
+        @wraps(f)
+        @kwargs_only(f)
+        def wrapper(**kwargs: Any) -> Any:
+            # Load partitions
+            list_partitons = [kwargs[p] for p in partitioned_args]
+
+            # Detect errors
+            keys = set(list_partitons[0].keys())
+            for d in list_partitons[1:]:
+                if set(d.keys()) != keys:
+                    raise ValueError("Not all partitions have the same keys")
+
+            # Merge partitions
+            # partitioneds = {}
+            # for key in keys:
+            #     partitioneds[key] = tuple(d[key] for d in list_partitons)
+            partitioneds = list_partitons
+
+            # Stocker les sorties dans un dict
+            outputs = [dict()]
+
+            if partitioneds:
+                for partitions in zip(
+                    *[partition.items() for partition in partitioneds]
+                ):
+                    # Name of partition
+                    partition = get_filepath_without_extension(partitions[0][0])
+
+                    # Multithreaded reading
+                    with ThreadPoolExecutor() as pool:
+                        inputs = list(pool.map(lambda p: p[1](), partitions))
+
+                    other_args = {
+                        k: v for k, v in kwargs.items() if k not in partitioned_args
+                    }
+                    # Appeler la fonction décorée avec inputs et autres arguments
+                    fn_return = f(*inputs, **other_args)
+                    # Gérer les résultats multiples
+                    if isinstance(fn_return, tuple):
+                        if len(outputs) == 1:
+                            outputs = [dict() for _ in range(len(fn_return))]
+                        for i, result in enumerate(fn_return):
+                            outputs[i][partition] = result
+                    else:
+                        outputs[0][partition] = fn_return
+
+            return outputs
+
+        return wrapper
+
+    return decorator
 
 
 def concat_partitions(
@@ -152,11 +231,13 @@ def concat_partitions(
 
         def filter_fn(_: str) -> bool:
             return True
+
     elif isinstance(filter, str):
         regex = re.compile(filter)
 
         def filter_fn(x: str) -> bool:
             return bool(regex.search(x))
+
     else:
         filter_fns = [
             regex_filter(x) if isinstance(x, str) else x for x in tolist(filter)
