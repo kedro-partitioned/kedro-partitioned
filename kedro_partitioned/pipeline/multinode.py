@@ -3,7 +3,6 @@
 from __future__ import annotations
 from abc import abstractmethod
 from collections import Counter
-from concurrent.futures import ThreadPoolExecutor
 from functools import cached_property, reduce, wraps
 import itertools
 import math
@@ -43,6 +42,16 @@ from kedro.pipeline import Pipeline
 from kedro_partitioned.utils.typing import T, Args, IsFunction
 
 _Partitioned = Dict[str, Callable[[], Any]]
+
+
+def _union_partitioneds(partitioneds: List[_Partitioned]) -> List[str]:
+    partitioned_sets = [
+        {get_filepath_without_extension(path) for path in partitioned}
+        for partitioned in partitioneds
+    ]
+    # output =  [elem for subset in partitioned_sets for elem in subset]
+    output = [list(elem) for elem in partitioned_sets]
+    return output
 
 
 class _Template(TypedDict):
@@ -333,6 +342,7 @@ class _SlicerNode(_CustomizedFuncNode):
         name: str,
         tags: Union[str, Iterable[str]] = None,
         confirms: Union[str, List[str]] = None,
+        split_function=None,
         namespace: str = None,
         filter: IsFunction[str] = truthify,
         configurator: str = None,
@@ -342,6 +352,7 @@ class _SlicerNode(_CustomizedFuncNode):
         self._original_output = partitioned_outputs
         self._filter = filter
         self._configurator = configurator
+        self.split_function = split_function
         super().__init__(
             func=nonefy,
             inputs=tolist(partitioned_inputs) + optionaltolist(configurator),
@@ -417,9 +428,10 @@ class _SlicerNode(_CustomizedFuncNode):
             for partitioned in partitioneds
         ]
 
-        return list(
+        output = list(
             reduce(lambda inter, curr: inter.intersection(curr), partitioned_sets)
         )
+        return output
 
     def _calc_slice_bound(self, partition_count: int, slice_id: int) -> int:
         """Calculates the bounds of the subset of partitions for node.
@@ -485,20 +497,47 @@ class _SlicerNode(_CustomizedFuncNode):
         else:
             return intersection
 
+    def is_list_of_lists(self, variable):
+        return isinstance(variable, list) and all(
+            isinstance(item, list) for item in variable
+        )
+
     @property
     def func(self) -> Callable:
         def fn(*args: Any) -> List[List[str]]:
             partitioneds, configurators = self._extract_args(args)
+            if self.split_function is None:
+                intersection = self._intersect_partitioneds(partitioneds)
+            elif callable(self.split_function):
+                intersection = self.split_function(partitioneds)
+            else:
+                raise TypeError(f"{self.split_function}` must be a callable.")
 
-            intersection = self._intersect_partitioneds(partitioneds)
-            intersection = self._apply_filter(intersection)
-            intersection = self._filter_cached(configurators, intersection)
-            intersection = sorted(intersection)
+            if self.is_list_of_lists(intersection):
+                output = []
+                for inter in intersection:
+                    inter = self._apply_filter(inter)
+                    inter = self._filter_cached(configurators, inter)
+                    inter = sorted(inter)
+                    output.append(
+                        [
+                            self._slice_partitions(inter, i)
+                            for i in range(self._slice_count)
+                        ]
+                    )
+                transposed = list(zip(*output))
 
-            return [
-                self._slice_partitions(intersection, i)
-                for i in range(self._slice_count)
-            ]
+                # Aplatir chaque groupe transposé
+                return [sum(group, []) for group in transposed]
+
+            else:
+                intersection = self._apply_filter(intersection)
+                intersection = self._filter_cached(configurators, intersection)
+                intersection = sorted(intersection)
+                return [
+                    self._slice_partitions(intersection, i)
+                    for i in range(self._slice_count)
+                ]
 
         return fn
 
@@ -512,7 +551,8 @@ class _MultiNode(_CustomizedFuncNode):
         ...                     'subpath/b.txt': lambda: 4}}
         >>> lb = lbn.run(inputs=dictionary)
 
-        >>> def fn(x: int) -> int: return x+10
+        >>> @multithread_partitions(partitioned_args=['x'])
+        ... def fn(x: int) -> int: return x+10
         >>> n = _MultiNode(slicer=lbn,
         ...                func=fn,
         ...                partitioned_inputs='a',
@@ -528,7 +568,8 @@ class _MultiNode(_CustomizedFuncNode):
 
         >>> dictionary['b'] = {'subpath/a.txt': lambda: 4,
         ...                    'subpath/b.txt': lambda: 5}
-        >>> def fn(x: int, y: int) -> list: return [x+10, y+20]
+        >>> @multithread_partitions(partitioned_args=['x', 'y'])
+        ... def fn(x: int, y: int) -> list: return [x+10, y+20]
         >>> n = _MultiNode(slicer=lbn,
         ...                func=fn,
         ...                partitioned_inputs=['a', 'b'],
@@ -554,7 +595,8 @@ class _MultiNode(_CustomizedFuncNode):
         Other inputs
 
         >>> dictionary['e'] = 100
-        >>> def fn(x: int, y: int, e: int) -> list: return [x+e, y+e]
+        >>> @multithread_partitions(partitioned_args=['x', 'y'])
+        ... def fn(x: int, y: int, e: int) -> list: return [x+e, y+e]
         >>> n = _MultiNode(slicer=lbn,
         ...                func=fn,
         ...                partitioned_inputs=['a', 'b'],
@@ -566,25 +608,6 @@ class _MultiNode(_CustomizedFuncNode):
         >>> n.run(inputs=dictionary)
         {'c-slice-0': {'subpath/a': 103}, 'd-slice-0': {'subpath/a': 104}}
 
-        Configurators
-
-        >>> def fn(x: int, y: int, conf, e: int) -> list:
-        ...     return [x+e+conf['add'], y+e+conf['add']]
-        >>> n = _MultiNode(slicer=lbn,
-        ...                func=fn,
-        ...                partitioned_inputs=['a', 'b'],
-        ...                partitioned_outputs=['c', 'd'],
-        ...                other_inputs=['e'],
-        ...                slice_id=0,
-        ...                slice_count=1,
-        ...                name='x',
-        ...                configurator='param:conf')
-        >>> dictionary['param:conf'] = {
-        ...     'template': {'pattern': 'subpath/{ab}'},
-        ...     'configurators': [{'target': ['a'], 'data': {'add': 100}},
-        ...                       {'target': ['*'], 'data': {'add': 20}}]}
-        >>> n.run(inputs=dictionary)
-        {'c-slice-0': {'subpath/a': 203}, 'd-slice-0': {'subpath/a': 204}}
     """
 
     SLICE_SUFFIX = "-slice-"
@@ -910,50 +933,10 @@ class _MultiNode(_CustomizedFuncNode):
             slices, partitioneds, configurators, other_inputs = self._extract_args(args)
 
             partitioneds = self._slice_inputs(slices, partitioneds)
-
-            if self._configurator:
-                configurator_finder = ConfiguratorFinder(configurators)
-
-            outputs = [dict() for _ in range(len(self.partitioned_outputs))]
-            if partitioneds[0]:
-                for partitions in zip(
-                    *[partition.items() for partition in partitioneds]
-                ):
-                    # partitions[i][j]
-                    # i = partitioned partitions
-                    # j = key == 0, value == 1
-                    partition = get_filepath_without_extension(partitions[0][0])
-                    self._logger.info(f'Processing "{partition}" on "{self.name}"')
-
-                    configurator = []
-                    if self._configurator:
-                        possible_configurator = configurator_finder[partition]
-
-                        if possible_configurator is None:
-                            self._logger.warning(
-                                f'No configurator found for "{partition}"'
-                            )
-                        else:
-                            target = possible_configurator["target"]
-                            configurator = [possible_configurator["data"]]
-                            self._logger.info(
-                                f'Using configurator "{target}" for ' f'"{partition}"'
-                            )
-
-                    with ThreadPoolExecutor() as pool:
-                        inputs = pool.map(lambda p: p[1](), partitions)
-
-                    fn_return = self._original_func(
-                        *inputs, *configurator, *other_inputs
-                    )
-
-                    if len(self.partitioned_outputs) > 1:
-                        for i, _ in enumerate(self.partitioned_outputs):
-                            outputs[i][partition] = fn_return[i]
-                    else:
-                        outputs[0][partition] = fn_return
-
-            return outputs
+            func_return = self._original_func(*partitioneds, *other_inputs)
+            if isinstance(func_return, dict):
+                return [func_return]
+            return func_return
 
         return fn
 
@@ -963,7 +946,8 @@ class _SynchronizationNode(_CustomizedFuncNode):
 
     Example:
         >>> lbn = _SlicerNode(2, 'a', 'b', 'x')
-        >>> def fn(x: int) -> int: x + 10
+        >>> @multithread_partitions(partitioned_args=['x'])
+        ... def fn(x: int) -> int: x + 10
         >>> mns = [_MultiNode(slicer=lbn, func=fn,
         ...                   partitioned_inputs='a', slice_count=2,
         ...                   partitioned_outputs='b', slice_id=i, name='x')
@@ -1086,6 +1070,7 @@ def multipipeline(
     namespace: str = None,
     n_slices: int = MAX_NODES * MAX_WORKERS,
     max_simultaneous_steps: int = None,
+    split_function: Callable = None,
     filter: IsFunction[str] = truthify,
 ) -> Pipeline:
     """Creates multiple pipelines to process partitioned data.
@@ -1204,6 +1189,7 @@ def multipipeline(
                 confirms=confirms,
                 namespace=namespace,
                 filter=filter,
+                split_function=split_function,
                 configurator=configurator,
             )
         ]
@@ -1272,6 +1258,7 @@ def multinode(
     tags: Union[str, Iterable[str]] = None,
     confirms: Union[str, List[str]] = None,
     namespace: str = None,
+    split_function=None,
     n_slices: int = MAX_NODES * MAX_WORKERS,
     filter: IsFunction[str] = truthify,
 ) -> Pipeline:
@@ -1538,6 +1525,7 @@ def multinode(
         max_simultaneous_steps=None,
         n_slices=n_slices,
         name=name,
+        split_function=split_function,
         namespace=namespace,
         tags=tags,
     )
