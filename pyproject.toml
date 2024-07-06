@@ -61,3 +61,8 @@ prerelease = false
 match = "ci"
 prerelease_token = "rc"
 prerelease = true
+
+[tool.semantic_release.branches.rc]
+match = "rc"
+prerelease_token = "rc"
+prerelease = true
