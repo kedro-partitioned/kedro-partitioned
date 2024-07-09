@@ -8,7 +8,7 @@ from kedro.framework.hooks import hook_impl
 from kedro_datasets.json import JSONDataset
 from kedro_partitioned.pipeline.multinode import _SlicerNode, _MultiNode
 from upath import UPath
-from kedro_datasets.partitions import PartitionedDataset
+from kedro_datasets.partitions import PartitionedDataset, MemoryDataset
 
 
 class MultiNodeEnabler:
@@ -76,8 +76,8 @@ class MultiNodeEnabler:
                 ):
                     partitioned = catalog._get_dataset(original)
                     assert isinstance(
-                        partitioned, PartitionedDataset
-                    ), "multinode cannot have non partitioned outputs"
+                        partitioned, (PartitionedDataset, MemoryDataset)
+                    ), "multinode cannot have non-partitioned or non-memory outputs"
                     catalog.add(slice, deepcopy(partitioned))
 
                 for input in node.original_partitioned_inputs:
