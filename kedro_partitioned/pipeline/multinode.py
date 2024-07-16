@@ -353,6 +353,21 @@ class _SlicerNode(_CustomizedFuncNode):
         self._filter = filter
         self._configurator = configurator
         self.split_function = split_function
+        
+        
+        
+        inputs = tolist(partitioned_inputs) + optionaltolist(configurator)
+        outputs = self._add_slicer_suffix(partitioned_outputs)
+        if namespace:
+            inputs = [ f"{namespace}.{inp}" for inp in inputs]
+        if namespace:
+            outputs = [f"{namespace}.{out}" for out in outputs]
+            
+
+        
+        
+        
+        
         super().__init__(
             func=nonefy,
             inputs=tolist(partitioned_inputs) + optionaltolist(configurator),
@@ -641,16 +656,26 @@ class _MultiNode(_CustomizedFuncNode):
         self._configurator = configurator
 
         self._point_to_matches(previous_nodes)
+        
+        
+        inputs = (
+                    [self.slicer_output]
+                    + tolist(self.partitioned_inputs)
+                    + optionaltolist(self._configurator)
+                    + tolist(self.other_inputs)
+                )
+        outputs = self.partitioned_outputs
+
+        if namespace:
+            inputs = [ f"{namespace}.{inp}" for inp in inputs]
+            
+        if namespace:
+            outputs = [f"{namespace}.{out}" for out in outputs]
 
         super().__init__(
             func=func,
-            inputs=(
-                [self.slicer_output]
-                + tolist(self.partitioned_inputs)
-                + optionaltolist(self._configurator)
-                + tolist(self.other_inputs)
-            ),
-            outputs=self.partitioned_outputs,
+            inputs=inputs,
+            outputs=outputs,
             name=self._add_slice_suffix(name),
             tags=tags,
             confirms=confirms,
@@ -974,6 +999,15 @@ class _SynchronizationNode(_CustomizedFuncNode):
     ):
         self._multinodes = multinodes
         self._partitioned_outputs = partitioned_outputs
+
+        inputs = self._extract_inputs(multinodes)
+        outputs = tolist(partitioned_outputs)
+
+        if namespace:
+            inputs = [ f"{namespace}.{inp}" for inp in inputs]
+            
+        if namespace:
+            outputs = [f"{namespace}.{out}" for out in outputs]
 
         super().__init__(
             func=nonefy,
