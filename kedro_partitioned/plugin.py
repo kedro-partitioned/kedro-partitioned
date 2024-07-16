@@ -90,7 +90,9 @@ class MultiNodeEnabler:
 
             elif isinstance(node, _SlicerNode):
                 partitioned = catalog._get_dataset(node.original_output)
+                print("lolllllllllllll")
                 print(node.original_output)
+                print("lulllllllllllll")
                 assert isinstance(partitioned, PartitionedDataset), (
                     f'multinode received "{node.original_output}" as a '
                     f"`PartitionedDataset`, although it is a "
