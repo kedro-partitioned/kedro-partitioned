@@ -916,6 +916,7 @@ class _MultiNode(_CustomizedFuncNode):
         Union[None, Dict[str, _Configurator]],
         List[Any],
     ]:
+        print(args)
         slices, args = self._extract_slices(args)
         partitioneds, args = self._extract_partitioneds(args)
         configurators, args = self._extract_configurators(args)
