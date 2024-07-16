@@ -353,25 +353,18 @@ class _SlicerNode(_CustomizedFuncNode):
         self._filter = filter
         self._configurator = configurator
         self.split_function = split_function
-        
-        
-        
+
         inputs = tolist(partitioned_inputs) + optionaltolist(configurator)
         outputs = self._add_slicer_suffix(partitioned_outputs)
         if namespace:
             inputs = [ f"{namespace}.{inp}" for inp in inputs]
         if namespace:
             outputs = [f"{namespace}.{out}" for out in outputs]
-            
-
-        
-        
-        
         
         super().__init__(
             func=nonefy,
-            inputs=tolist(partitioned_inputs) + optionaltolist(configurator),
-            outputs=self._add_slicer_suffix(partitioned_outputs),
+            inputs=inputs,
+            outputs=outputs,
             name=name,
             tags=tags,
             confirms=confirms,
@@ -1011,8 +1004,8 @@ class _SynchronizationNode(_CustomizedFuncNode):
 
         super().__init__(
             func=nonefy,
-            inputs=self._extract_inputs(multinodes),
-            outputs=tolist(partitioned_outputs),
+            inputs=inputs,
+            outputs=outputs,
             name=self._add_synchronization_suffix(name),
             tags=tags,
             confirms=confirms,
