@@ -387,7 +387,7 @@ class _SlicerNode(_CustomizedFuncNode):
             "configurator": self._configurator,
             "filter": self._filter,
         }
-        params.update(overwrite_params)
+	params.update({k: v for k, v in overwrite_params.items() if k in params})
         return self.__class__(**params)
 
     @classmethod
@@ -711,7 +711,7 @@ class _MultiNode(_CustomizedFuncNode):
             "confirms": self._confirms,
             "configurator": self._configurator,
         }
-        params.update(overwrite_params)
+        params.update({k: v for k, v in overwrite_params.items() if k in params})	
         return self.__class__(**params)
 
     def _validate_inputs(self, func: Any, inputs: Any):
@@ -1001,7 +1001,7 @@ class _SynchronizationNode(_CustomizedFuncNode):
             "tags": self._tags,
             "confirms": self._confirms,
         }
-        params.update(overwrite_params)
+        params.update({k: v for k, v in overwrite_params.items() if k in params})
         return self.__class__(**params)
 
     @classmethod
