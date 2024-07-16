@@ -359,7 +359,7 @@ class _SlicerNode(_CustomizedFuncNode):
         if namespace:
             inputs = [ f"{namespace}.{inp}" for inp in inputs]
         if namespace:
-            outputs = [f"{namespace}.{out}" for out in outputs]
+            outputs = f"{namespace}.{outputs}"
         
         super().__init__(
             func=nonefy,
@@ -660,7 +660,7 @@ class _MultiNode(_CustomizedFuncNode):
         outputs = self.partitioned_outputs
 
         if namespace:
-            inputs = [ f"{namespace}.{inp}" for inp in inputs]
+            inputs = [f"{namespace}.{inp}" for inp in inputs]
             
         if namespace:
             outputs = [f"{namespace}.{out}" for out in outputs]
