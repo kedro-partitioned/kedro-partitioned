@@ -1001,6 +1001,7 @@ class _SynchronizationNode(_CustomizedFuncNode):
             "tags": self._tags,
             "confirms": self._confirms,
         }
+        print(overwrite_params)
         params.update({k: v for k, v in overwrite_params.items() if k in params})
         return self.__class__(**params)
 
