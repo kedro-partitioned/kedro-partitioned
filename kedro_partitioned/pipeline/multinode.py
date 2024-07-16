@@ -387,7 +387,7 @@ class _SlicerNode(_CustomizedFuncNode):
             "configurator": self._configurator,
             "filter": self._filter,
         }
-	params.update({k: v for k, v in overwrite_params.items() if k in params})
+        params.update({k: v for k, v in overwrite_params.items() if k in params})
         return self.__class__(**params)
 
     @classmethod
