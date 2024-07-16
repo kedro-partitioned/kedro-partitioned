@@ -933,7 +933,7 @@ class _MultiNode(_CustomizedFuncNode):
         @wraps(self._func)
         def fn(*args: Any) -> Any:
             slices, partitioneds, configurators, other_inputs = self._extract_args(args)
-
+            print(slices)
             partitioneds = self._slice_inputs(slices, partitioneds)
             func_return = self._original_func(*partitioneds, *other_inputs)
             if isinstance(func_return, dict):
