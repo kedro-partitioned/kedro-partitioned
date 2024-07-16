@@ -866,8 +866,6 @@ class _MultiNode(_CustomizedFuncNode):
         ]
 
     def _get_slice(self, slices: List[List[str]]) -> Set[str]:
-        print(slices)
-        print(self.slice_id)
         return set(slices[self.slice_id])
 
     def _slice_inputs(
@@ -916,7 +914,6 @@ class _MultiNode(_CustomizedFuncNode):
         Union[None, Dict[str, _Configurator]],
         List[Any],
     ]:
-        print(args)
         slices, args = self._extract_slices(args)
         partitioneds, args = self._extract_partitioneds(args)
         configurators, args = self._extract_configurators(args)
