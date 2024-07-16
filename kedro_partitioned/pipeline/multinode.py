@@ -866,6 +866,8 @@ class _MultiNode(_CustomizedFuncNode):
         ]
 
     def _get_slice(self, slices: List[List[str]]) -> Set[str]:
+        print(slices)
+        print(self.slice_id)
         return set(slices[self.slice_id])
 
     def _slice_inputs(
@@ -1001,7 +1003,6 @@ class _SynchronizationNode(_CustomizedFuncNode):
             "tags": self._tags,
             "confirms": self._confirms,
         }
-        print(overwrite_params)
         params.update({k: v for k, v in overwrite_params.items() if k in params})
         return self.__class__(**params)
 
