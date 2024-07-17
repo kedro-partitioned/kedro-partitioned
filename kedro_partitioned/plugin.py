@@ -9,6 +9,7 @@ from kedro_datasets.json import JSONDataset
 from kedro_partitioned.pipeline.multinode import _SlicerNode, _MultiNode
 from upath import UPath
 from kedro_datasets.partitions import PartitionedDataset
+from kedro.framework.project import pipelines
 
 
 class MultiNodeEnabler:
@@ -54,7 +55,10 @@ class MultiNodeEnabler:
     >>> catalog._datasets['b-slicer']._protocol
     'http'
     """
-
+    @hook_impl
+    def after_context_created(self, context) -> None:
+        self.pipe = pipelines["__default__"]
+        
     @hook_impl
     def before_pipeline_run(
         self,
@@ -70,7 +74,7 @@ class MultiNodeEnabler:
             catalog (DataCatalog): Catalog of data sources.
         """
         print("apply plugin")
-        for node in pipeline.nodes:
+        for node in self.pipe.nodes:
             if isinstance(node, _MultiNode):
                 for original, slice in zip(
                     node.original_partitioned_outputs, node.partitioned_outputs
