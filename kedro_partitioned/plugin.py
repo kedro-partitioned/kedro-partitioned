@@ -73,7 +73,6 @@ class MultiNodeEnabler:
             pipeline (Pipeline): Pipeline to be run.
             catalog (DataCatalog): Catalog of data sources.
         """
-        print("apply plugin")
         for node in self.pipe.nodes:
             if isinstance(node, _MultiNode):
                 for original, slice in zip(
