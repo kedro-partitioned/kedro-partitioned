@@ -82,6 +82,8 @@ class MultiNodeEnabler:
                     assert isinstance(
                         partitioned, PartitionedDataset
                     ), "multinode cannot have non partitioned outputs"
+                    print(slice)
+                    print(partitioned)
                     catalog.add(slice, deepcopy(partitioned))
 
                 for input in node.original_partitioned_inputs:
