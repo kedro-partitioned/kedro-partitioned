@@ -85,7 +85,9 @@ class MultiNodeEnabler:
                     print(slice)
                     print(original)
                     print(partitioned)
-                    catalog.add(slice, deepcopy(partitioned))
+                    
+                    
+                    #catalog.add(slice, deepcopy(partitioned))
 
                 for input in node.original_partitioned_inputs:
                     partitioned = catalog._get_dataset(input)
