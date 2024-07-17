@@ -78,7 +78,7 @@ class MultiNodeEnabler:
                 for original, slice in zip(
                     node.original_partitioned_outputs, node.partitioned_outputs
                 ):
-                    partitioned = catalog._get_dataset(slice)
+                    partitioned = catalog._get_dataset(original)
                     assert isinstance(
                         partitioned, PartitionedDataset
                     ), "multinode cannot have non partitioned outputs"
