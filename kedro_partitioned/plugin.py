@@ -83,6 +83,7 @@ class MultiNodeEnabler:
                         partitioned, PartitionedDataset
                     ), "multinode cannot have non partitioned outputs"
                     print(slice)
+                    print(original)
                     print(partitioned)
                     catalog.add(slice, deepcopy(partitioned))
 
