@@ -23,6 +23,8 @@ from typing_extensions import Literal, NotRequired
 
 from kedro.pipeline.node import Node
 from kedro.pipeline import node
+from kedro.pipeline.modular_pipeline.pipeline._pro
+
 from kedro_partitioned.utils.constants import MAX_NODES, MAX_WORKERS
 from kedro_partitioned.utils.other import (
     nonefy,
@@ -42,6 +44,14 @@ from kedro.pipeline import Pipeline
 from kedro_partitioned.utils.typing import T, Args, IsFunction
 
 _Partitioned = Dict[str, Callable[[], Any]]
+
+
+def is_partitioned_input(partitioned_input, elem):
+    # Vérifie si un élément de partitioned_input est dans elem
+    for part in partitioned_input:
+        if part in elem:
+            return True
+    return False
 
 
 def _union_partitioneds(partitioneds: List[_Partitioned]) -> List[str]:
@@ -384,9 +394,43 @@ class _SlicerNode(_CustomizedFuncNode):
         return self._outputs
 
     def _copy(self, **overwrite_params: Any) -> _SlicerNode:
+        
+        inputs = []
+        other_inputs = []
+        if "inputs" in overwrite_params.keys():
+            if isinstance(overwrite_params["inputs"], list):
+                for elem in overwrite_params["inputs"]:
+                    if is_partitioned_input(self._partitioned_inputs, elem):
+                        inputs.append(elem)
+                    else:
+                        other_inputs.append(elem)
+            elif isinstance(overwrite_params["inputs"], str):
+                if is_partitioned_input(self._partitioned_inputs, elem):
+                    inputs.append(elem)
+                else:
+                    other_inputs.append(elem)
+            elif isinstance(overwrite_params["inputs"], dict):
+                for key, value in overwrite_params["inputs"].items():
+                    if is_partitioned_input(self._partitioned_inputs, key):
+                        inputs.append(value)
+                    else:
+                        other_inputs.append(elem)
+
+            else:
+                raise ValueError("Inputs not str, list or dict")
+        else:
+            inputs = self._partitioned_inputs
+            
+        if len(other_inputs) > 0:
+            raise ValueError("Other_inputs not empty for slicer node")
+        
+        outputs = self._original_output
+        if "outputs" in overwrite_params.keys():
+            outputs = overwrite_params["outputs"]
+        
         params = {
-            "partitioned_inputs": self._partitioned_inputs,
-            "partitioned_outputs": self._original_output,
+            "partitioned_inputs": inputs,
+            "partitioned_outputs": outputs,
             "slice_count": self._slice_count,
             "name": self._name,
             "namespace": self._namespace,
@@ -714,13 +758,49 @@ class _MultiNode(_CustomizedFuncNode):
         ]
 
     # required for inheritance
-    def _copy(self, **overwrite_params: Any) -> _MultiNode:
+    def _copy(self, **overwrite_params: Any) -> _MultiNode:            
+        
+        inputs = []
+        other_inputs = []
+        if "inputs" in overwrite_params.keys():
+            if isinstance(overwrite_params["inputs"], list):
+                for elem in overwrite_params["inputs"]:
+                    if is_partitioned_input(self._partitioned_inputs, elem):
+                        inputs.append(elem)
+                    else:
+                        other_inputs.append(elem)
+            elif isinstance(overwrite_params["inputs"], str):
+                if is_partitioned_input(self._partitioned_inputs, elem):
+                    inputs.append(elem)
+                else:
+                    other_inputs.append(elem)
+            elif isinstance(overwrite_params["inputs"], dict):
+                for key, value in overwrite_params["inputs"].items():
+                    if is_partitioned_input(self._partitioned_inputs, key):
+                        inputs.append(value)
+                    else:
+                        other_inputs.append(elem)
+
+            else:
+                raise ValueError("Inputs not str, list or dict")
+        else:
+            inputs = self._partitioned_inputs
+            
+        if len(other_inputs) == 0:
+            other_inputs = None
+                    
+        outputs = self._original_output
+        if "outputs" in overwrite_params.keys():
+            outputs = overwrite_params["outputs"]
+
+        
+        
         params = {
             "slicer": self._slicer,
             "func": self._func,
-            "partitioned_inputs": self._partitioned_inputs,
-            "other_inputs": self._other_inputs,
-            "partitioned_outputs": self._partitioned_outputs,
+            "partitioned_inputs": inputs,
+            "other_inputs": other_inputs,
+            "partitioned_outputs": outputs,
             "slice_id": self._slice_id,
             "slice_count": self._slice_count,
             "name": self._name,
@@ -729,7 +809,7 @@ class _MultiNode(_CustomizedFuncNode):
             "confirms": self._confirms,
             "configurator": self._configurator,
         }
-        params.update({k: v for k, v in overwrite_params.items() if k in params})	
+        params.update(overwrite_params)   #{k: v for k, v in overwrite_params.items() if k in params})	
         return self.__class__(**params)
 
     def _validate_inputs(self, func: Any, inputs: Any):
@@ -1019,9 +1099,15 @@ class _SynchronizationNode(_CustomizedFuncNode):
 
     # required for inheritance
     def _copy(self, **overwrite_params: Any) -> _SynchronizationNode:
+        
+                    
+        outputs = self._original_output
+        if "outputs" in overwrite_params.keys():
+            outputs = overwrite_params["outputs"]
+
         params = {
             "multinodes": self._multinodes,
-            "partitioned_outputs": self._partitioned_outputs,
+            "partitioned_outputs": outputs,
             "name": self._name,
             "namespace": self._namespace,
             "tags": self._tags,
