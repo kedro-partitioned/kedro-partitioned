@@ -1083,12 +1083,6 @@ class _SynchronizationNode(_CustomizedFuncNode):
         inputs = self._extract_inputs(multinodes)
         outputs = tolist(partitioned_outputs)
 
-        # if namespace:
-        #     inputs = [ f"{namespace}.{inp}" for inp in inputs]
-            
-        # if namespace:
-        #     outputs = [f"{namespace}.{out}" for out in outputs]
-
         super().__init__(
             func=nonefy,
             inputs=inputs,
@@ -1137,13 +1131,13 @@ class _SynchronizationNode(_CustomizedFuncNode):
             raise ValueError("Other_inputs not empty for slicer node")
 
                     
-        outputs = self._partitioned_outputs
+        out_outputs = self._partitioned_outputs
         if "outputs" in overwrite_params.keys():
-            outputs = overwrite_params["outputs"]
+            out_outputs = overwrite_params["outputs"]
 
         params = {
             "multinodes": inputs,
-            "partitioned_outputs": outputs,
+            "partitioned_outputs": out_outputs,
             "name": self._name,
             "namespace": self._namespace,
             "tags": self._tags,
