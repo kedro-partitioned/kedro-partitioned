@@ -426,6 +426,7 @@ class _SlicerNode(_CustomizedFuncNode):
         outputs = self._original_output
         if "outputs" in overwrite_params.keys():
             outputs = overwrite_params["outputs"]
+            print(outputs)
         
         params = {
             "partitioned_inputs": inputs,
