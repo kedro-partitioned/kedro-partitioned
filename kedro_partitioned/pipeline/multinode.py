@@ -363,8 +363,8 @@ class _SlicerNode(_CustomizedFuncNode):
         self._configurator = configurator
         self.split_function = split_function
 
-        inputs = tolist(partitioned_inputs) + optionaltolist(configurator)
-        outputs = self._add_slicer_suffix(partitioned_outputs)
+        #inputs = 
+        #outputs = 
         # if namespace:
         #     inputs = [ f"{namespace}.{inp}" for inp in inputs]
         # if namespace:
@@ -372,8 +372,8 @@ class _SlicerNode(_CustomizedFuncNode):
         
         super().__init__(
             func=nonefy,
-            inputs=inputs,
-            outputs=outputs,
+            inputs=tolist(partitioned_inputs) + optionaltolist(configurator),
+            outputs=self._add_slicer_suffix(partitioned_outputs),
             name=name,
             tags=tags,
             confirms=confirms,
