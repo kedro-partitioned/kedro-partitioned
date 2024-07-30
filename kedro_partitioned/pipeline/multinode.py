@@ -773,8 +773,6 @@ class _MultiNode(_CustomizedFuncNode):
             other_inputs = []
             slicer = None
             if isinstance(overwrite_params["inputs"], list):
-                print(self._partitioned_inputs)
-                print(overwrite_params["inputs"])
                 for elem in overwrite_params["inputs"]:
                     if is_partitioned_input(self._partitioned_inputs, elem):
                         inputs.append(elem)
