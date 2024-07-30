@@ -808,7 +808,7 @@ class _MultiNode(_CustomizedFuncNode):
             "confirms": self._confirms,
             "configurator": self._configurator,
         }
-        params.update(overwrite_params)   #{k: v for k, v in overwrite_params.items() if k in params})	
+        params.update({k: v for k, v in overwrite_params.items() if k in params})
         return self.__class__(**params)
 
     def _validate_inputs(self, func: Any, inputs: Any):
