@@ -788,7 +788,7 @@ class _MultiNode(_CustomizedFuncNode):
         if len(other_inputs) == 0:
             other_inputs = None
                     
-        outputs = self._original_output
+        outputs = self._partitioned_outputs
         if "outputs" in overwrite_params.keys():
             outputs = overwrite_params["outputs"]
 
@@ -1100,7 +1100,7 @@ class _SynchronizationNode(_CustomizedFuncNode):
     def _copy(self, **overwrite_params: Any) -> _SynchronizationNode:
         
                     
-        outputs = self._original_output
+        outputs = self._partitioned_outputs
         if "outputs" in overwrite_params.keys():
             outputs = overwrite_params["outputs"]
 
