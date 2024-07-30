@@ -1112,18 +1112,18 @@ class _SynchronizationNode(_CustomizedFuncNode):
         if "inputs" in overwrite_params.keys():
             if isinstance(overwrite_params["inputs"], list):
                 for elem in overwrite_params["inputs"]:
-                    if is_partitioned_input(self._multinodes, elem):
+                    if is_partitioned_input(self.inputs, elem):
                         inputs.append(elem)
                     else:
                         other_inputs.append(elem)
             elif isinstance(overwrite_params["inputs"], str):
-                if is_partitioned_input(self._multinodes, elem):
+                if is_partitioned_input(self.inputs, elem):
                     inputs.append(elem)
                 else:
                     other_inputs.append(elem)
             elif isinstance(overwrite_params["inputs"], dict):
                 for key, value in overwrite_params["inputs"].items():
-                    if is_partitioned_input(self._multinodes, key):
+                    if is_partitioned_input(self.inputs, key):
                         inputs.append(value)
                     else:
                         other_inputs.append(elem)
