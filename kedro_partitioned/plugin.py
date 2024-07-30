@@ -95,6 +95,7 @@ class MultiNodeEnabler:
                     )
 
             elif isinstance(node, _SlicerNode):
+                print(node.json_output)
                 print(node.original_output)
                 partitioned = catalog._get_dataset(node.original_output)
                 assert isinstance(partitioned, PartitionedDataset), (
