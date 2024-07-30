@@ -678,7 +678,7 @@ class _MultiNode(_CustomizedFuncNode):
         
         func: Callable,
         name: str,
-        slicer,
+        slicer: Union[_SlicerNode, str],
         partitioned_inputs: Union[str, List[str]],
         partitioned_outputs: Union[None, str, List[str]],
         slice_id: int,
@@ -704,7 +704,7 @@ class _MultiNode(_CustomizedFuncNode):
 
         self._point_to_matches(previous_nodes)
                 
-        if isinstance(self._slicer, _MultiNode):
+        if isinstance(self._slicer, _SlicerNode):
             inputs = (
                     [self.slicer_output]
                     + tolist(self.partitioned_inputs)
