@@ -802,6 +802,7 @@ class _MultiNode(_CustomizedFuncNode):
         if "outputs" in overwrite_params.keys():
             outputs = overwrite_params["outputs"]
 
+        print(outputs)
         
         params = {
             "slicer": slicer,
