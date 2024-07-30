@@ -784,29 +784,26 @@ class _MultiNode(_CustomizedFuncNode):
             other_inputs = []
             slicer = []
             if isinstance(overwrite_params["inputs"], list):
-                print([self._slicer.json_output])
-                print(overwrite_params["inputs"])
-                print()
                 for elem in overwrite_params["inputs"]:
-                    if is_partitioned_input(self._partitioned_inputs, elem):
-                        inputs.append(elem)
-                    elif is_partitioned_input([self._slicer.json_output], elem):
+                    if is_partitioned_input([self._slicer.json_output], elem):
                         slicer.append(elem)
+                    elif is_partitioned_input(self._partitioned_inputs, elem):
+                        inputs.append(elem)
                     else:
                         other_inputs.append(elem)
             elif isinstance(overwrite_params["inputs"], str):
-                if is_partitioned_input(self._partitioned_inputs, elem):
-                    inputs.append(elem)
-                elif is_partitioned_input(self._slicer.json_output, elem):
+                if is_partitioned_input(self._slicer.json_output, elem):
                     slicer.append(elem)
+                elif is_partitioned_input(self._partitioned_inputs, elem):
+                    inputs.append(elem)
                 else:
                     other_inputs.append(elem)
             elif isinstance(overwrite_params["inputs"], dict):
                 for key, value in overwrite_params["inputs"].items():
-                    if is_partitioned_input(self._partitioned_inputs, key):
-                        inputs.append(value)
-                    elif is_partitioned_input(self._slicer.json_output, elem):
+                    if is_partitioned_input(self._slicer.json_output, elem):
                         slicer.append(value)
+                    elif is_partitioned_input(self._partitioned_inputs, key):
+                        inputs.append(value)
                     else:
                         other_inputs.append(value)
             else:
