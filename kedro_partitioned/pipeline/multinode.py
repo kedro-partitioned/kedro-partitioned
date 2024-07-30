@@ -23,7 +23,6 @@ from typing_extensions import Literal, NotRequired
 
 from kedro.pipeline.node import Node
 from kedro.pipeline import node
-from kedro.pipeline.modular_pipeline.pipeline._pro
 
 from kedro_partitioned.utils.constants import MAX_NODES, MAX_WORKERS
 from kedro_partitioned.utils.other import (
