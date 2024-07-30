@@ -678,7 +678,7 @@ class _MultiNode(_CustomizedFuncNode):
         
         func: Callable,
         name: str,
-        slicer: _SlicerNode | str,
+        slicer: Union[_SlicerNode, str],
         partitioned_inputs: Union[str, List[str]],
         partitioned_outputs: Union[None, str, List[str]],
         slice_id: int,
