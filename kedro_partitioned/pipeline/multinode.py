@@ -795,6 +795,7 @@ class _MultiNode(_CustomizedFuncNode):
         else:
             inputs = self._partitioned_inputs
             
+        print(other_inputs)
         if len(other_inputs) == 0:
             other_inputs = None
                     
