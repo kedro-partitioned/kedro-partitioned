@@ -426,7 +426,8 @@ class _SlicerNode(_CustomizedFuncNode):
         outputs = self._original_output
         if "outputs" in overwrite_params.keys():
             outputs = overwrite_params["outputs"]
-            print(outputs)
+            if isinstance(outputs, str):
+                outputs = self._remove_slicer_suffix(outputs)
         
         params = {
             "partitioned_inputs": inputs,
@@ -441,6 +442,14 @@ class _SlicerNode(_CustomizedFuncNode):
         }
         params.update({k: v for k, v in overwrite_params.items() if k in params})
         return self.__class__(**params)
+
+    @classmethod
+    def _remove_slicer_suffix(cls, string: str) -> str:
+        return (
+            string
+            if not string.endswith(cls.SLICER_SUFFIX)
+            else string[:-len(cls.SLICER_SUFFIX)]
+        )
 
     @classmethod
     def _add_slicer_suffix(cls, string: str) -> str:
