@@ -671,7 +671,7 @@ class _MultiNode(_CustomizedFuncNode):
 
     def __init__(
         self,
-        slicer: _SlicerNode,
+        
         func: Callable,
         name: str,
         partitioned_inputs: Union[str, List[str]],
@@ -684,6 +684,7 @@ class _MultiNode(_CustomizedFuncNode):
         namespace: str = None,
         previous_nodes: List[_MultiNode] = [],
         configurator: str = None,
+        slicer: _SlicerNode = None,
     ):
         self._slicer = slicer
 
@@ -706,6 +707,21 @@ class _MultiNode(_CustomizedFuncNode):
                     + optionaltolist(self._configurator)
                     + tolist(self.other_inputs)
                 )
+        
+        if self._slicer:
+            inputs = (
+                    [self.slicer_output]
+                    + tolist(self.partitioned_inputs)
+                    + optionaltolist(self._configurator)
+                    + tolist(self.other_inputs)
+                )
+        else:
+            inputs = (
+                    tolist(self.partitioned_inputs)
+                    + optionaltolist(self._configurator)
+                    + tolist(self.other_inputs)
+                )
+        
         outputs = self.partitioned_outputs
 
         # if namespace:
@@ -767,7 +783,9 @@ class _MultiNode(_CustomizedFuncNode):
         
         inputs = []
         other_inputs = []
+        slicer = self._slicer
         if "inputs" in overwrite_params.keys():
+            slicer = None
             if isinstance(overwrite_params["inputs"], list):
                 for elem in overwrite_params["inputs"]:
                     if is_partitioned_input(self._partitioned_inputs, elem):
@@ -799,9 +817,8 @@ class _MultiNode(_CustomizedFuncNode):
             outputs = overwrite_params["outputs"]
 
         
-        
         params = {
-            "slicer": self._slicer,
+            "slicer": slicer,
             "func": self._func,
             "partitioned_inputs": inputs,
             "other_inputs": other_inputs,
