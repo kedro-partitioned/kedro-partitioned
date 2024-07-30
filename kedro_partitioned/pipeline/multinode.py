@@ -796,6 +796,7 @@ class _MultiNode(_CustomizedFuncNode):
                 raise ValueError("Inputs not str, list or dict")
         else:
             inputs = self._partitioned_inputs
+            other_inputs = self._other_inputs
             
         if len(other_inputs) == 0:
             other_inputs = None
