@@ -1081,7 +1081,13 @@ class _SynchronizationNode(_CustomizedFuncNode):
         self._multinodes = multinodes
         self._partitioned_outputs = partitioned_outputs
 
-        inputs = self._extract_inputs(multinodes)
+        
+        def is_list_of_strings(var):
+            return isinstance(var, list) and all(isinstance(item, str) for item in var)
+        if is_list_of_strings(self._multinodes):
+            inputs = self._multinodes
+        else:
+            inputs = self._extract_inputs(multinodes)
         outputs = tolist(partitioned_outputs)
 
         super().__init__(
