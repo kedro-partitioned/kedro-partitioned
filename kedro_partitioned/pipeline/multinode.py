@@ -788,6 +788,7 @@ class _MultiNode(_CustomizedFuncNode):
                         inputs.append(elem)
                     else:
                         other_inputs.append(elem)
+                        print(other_inputs)
             elif isinstance(overwrite_params["inputs"], str):
                 if is_partitioned_input(self._partitioned_inputs, elem):
                     inputs.append(elem)
