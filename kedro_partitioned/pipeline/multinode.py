@@ -998,6 +998,7 @@ class _MultiNode(_CustomizedFuncNode):
         ]
 
     def _get_slice(self, slices: List[List[str]]) -> Set[str]:
+        print(slices)
         return set(slices[self.slice_id])
 
     def _slice_inputs(
