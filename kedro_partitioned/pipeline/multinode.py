@@ -783,11 +783,12 @@ class _MultiNode(_CustomizedFuncNode):
             other_inputs = []
             slicer = []
             if isinstance(overwrite_params["inputs"], list):
+                print([self._slicer.json_output])
+                print(overwrite_params["inputs"])
                 for elem in overwrite_params["inputs"]:
                     if is_partitioned_input(self._partitioned_inputs, elem):
                         inputs.append(elem)
                     elif is_partitioned_input([self._slicer.json_output], elem):
-                        print(other_inputs)
                         slicer.append(elem)
                     else:
                         other_inputs.append(elem)
