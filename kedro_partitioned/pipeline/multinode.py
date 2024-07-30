@@ -699,15 +699,7 @@ class _MultiNode(_CustomizedFuncNode):
         self._configurator = configurator
 
         self._point_to_matches(previous_nodes)
-        
-        
-        inputs = (
-                    [self.slicer_output]
-                    + tolist(self.partitioned_inputs)
-                    + optionaltolist(self._configurator)
-                    + tolist(self.other_inputs)
-                )
-        
+                
         if self._slicer:
             inputs = (
                     [self.slicer_output]
