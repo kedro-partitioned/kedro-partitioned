@@ -767,10 +767,10 @@ class _MultiNode(_CustomizedFuncNode):
     # required for inheritance
     def _copy(self, **overwrite_params: Any) -> _MultiNode:
         
-        inputs = []
-        other_inputs = []
-        slicer = self._slicer
+        
         if "inputs" in overwrite_params.keys():
+            inputs = []
+            other_inputs = []
             slicer = None
             if isinstance(overwrite_params["inputs"], list):
                 print(self._partitioned_inputs)
@@ -791,15 +791,15 @@ class _MultiNode(_CustomizedFuncNode):
                         inputs.append(value)
                     else:
                         other_inputs.append(elem)
-
             else:
                 raise ValueError("Inputs not str, list or dict")
+            
+            if len(other_inputs) == 0:
+                other_inputs = None
         else:
             inputs = self._partitioned_inputs
             other_inputs = self._other_inputs
-            
-        if len(other_inputs) == 0:
-            other_inputs = None
+            slicer = self._slicer
                     
         outputs = self._partitioned_outputs
         if "outputs" in overwrite_params.keys():
