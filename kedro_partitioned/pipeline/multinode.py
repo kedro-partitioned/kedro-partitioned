@@ -421,13 +421,7 @@ class _SlicerNode(_CustomizedFuncNode):
             inputs = self._partitioned_inputs
             
         if len(other_inputs) > 0:
-            raise ValueError("Other_inputs not empty for slicer node")
-        print("over")
-        print(overwrite_params)
-        print("input")
-        print(inputs)
-        print()
-        
+            raise ValueError("Other_inputs not empty for slicer node")        
         
         outputs = self._original_output
         if "outputs" in overwrite_params.keys():
@@ -1113,14 +1107,42 @@ class _SynchronizationNode(_CustomizedFuncNode):
 
     # required for inheritance
     def _copy(self, **overwrite_params: Any) -> _SynchronizationNode:
-        
+        inputs = []
+        other_inputs = []
+        if "inputs" in overwrite_params.keys():
+            if isinstance(overwrite_params["inputs"], list):
+                for elem in overwrite_params["inputs"]:
+                    if is_partitioned_input(self._partitioned_inputs, elem):
+                        inputs.append(elem)
+                    else:
+                        other_inputs.append(elem)
+            elif isinstance(overwrite_params["inputs"], str):
+                if is_partitioned_input(self._partitioned_inputs, elem):
+                    inputs.append(elem)
+                else:
+                    other_inputs.append(elem)
+            elif isinstance(overwrite_params["inputs"], dict):
+                for key, value in overwrite_params["inputs"].items():
+                    if is_partitioned_input(self._partitioned_inputs, key):
+                        inputs.append(value)
+                    else:
+                        other_inputs.append(elem)
+
+            else:
+                raise ValueError("Inputs not str, list or dict")
+        else:
+            inputs = self._multinodes
+            
+        if len(other_inputs) > 0:
+            raise ValueError("Other_inputs not empty for slicer node")
+
                     
         outputs = self._partitioned_outputs
         if "outputs" in overwrite_params.keys():
             outputs = overwrite_params["outputs"]
 
         params = {
-            "multinodes": self._multinodes,
+            "multinodes": inputs,
             "partitioned_outputs": outputs,
             "name": self._name,
             "namespace": self._namespace,
