@@ -812,7 +812,7 @@ class _MultiNode(_CustomizedFuncNode):
         outputs = self._partitioned_outputs
         if "outputs" in overwrite_params.keys():
             outputs = overwrite_params["outputs"]
-
+            outputs = self._remove_slice_suffix(outputs, self._slice_id)
         
         params = {
             "slicer": slicer,
@@ -847,6 +847,21 @@ class _MultiNode(_CustomizedFuncNode):
             str
         """
         return self._slicer.json_output
+
+    @classmethod
+    def _remove_slice_suffix(cls, string: Union[str, List[str]], slice_id: int) -> str:
+        return firstorlist(
+            [
+                
+                (
+                    string
+                    if not string.endswith(f"{cls.SLICE_SUFFIX}{slice_id}")
+                    else string[:-len(f"{cls.SLICE_SUFFIX}{slice_id}")]
+                )
+                for el in tolist(string)
+            ]
+        )
+
 
     @classmethod
     def add_slice_suffix(
