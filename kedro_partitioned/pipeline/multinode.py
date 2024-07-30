@@ -998,7 +998,6 @@ class _MultiNode(_CustomizedFuncNode):
         ]
 
     def _get_slice(self, slices: List[List[str]]) -> Set[str]:
-        print(slices)
         return set(slices[self.slice_id])
 
     def _slice_inputs(
@@ -1063,8 +1062,11 @@ class _MultiNode(_CustomizedFuncNode):
 
         @wraps(self._func)
         def fn(*args: Any) -> Any:
+            print(args)
             slices, partitioneds, configurators, other_inputs = self._extract_args(args)
+            print(slices, partitioneds)
             partitioneds = self._slice_inputs(slices, partitioneds)
+            print(partitioneds)
             func_return = self._original_func(*partitioneds, *other_inputs)
             if isinstance(func_return, dict):
                 return [func_return]
