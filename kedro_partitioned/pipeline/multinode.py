@@ -422,6 +422,12 @@ class _SlicerNode(_CustomizedFuncNode):
             
         if len(other_inputs) > 0:
             raise ValueError("Other_inputs not empty for slicer node")
+        print("over")
+        print(overwrite_params)
+        print("input")
+        print(inputs)
+        print()
+        
         
         outputs = self._original_output
         if "outputs" in overwrite_params.keys():
