@@ -88,11 +88,9 @@ class MultiNodeEnabler:
                     cpy = deepcopy(partitioned)
 
                     setattr(cpy, 'slice_id', node._slice_id)
-
                     setattr(cpy, 'slice_count', node.slice_count)
-                    print(cpy)
-                    print(slice)
-                    catalog.add(slice, deepcopy(partitioned))
+
+                    catalog.add(slice, cpy)
 
                 for input in node.original_partitioned_inputs:
                     partitioned = catalog._get_dataset(input)
