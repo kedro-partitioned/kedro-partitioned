@@ -89,7 +89,6 @@ class MultiNodeEnabler:
                     setattr(cpy, 'slice_count', node.slice_count)
 
                     catalog.add(slice, cpy)
-                    print(original, slice)
 
                 for input in node.original_partitioned_inputs:
                     partitioned = catalog._get_dataset(input)
