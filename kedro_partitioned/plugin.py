@@ -9,6 +9,7 @@ from kedro_datasets.json import JSONDataset
 from kedro_partitioned.pipeline.multinode import _SlicerNode, _MultiNode
 from upath import UPath
 from kedro_datasets.partitions import PartitionedDataset
+from kedro.framework.project import pipelines
 
 
 class MultiNodeEnabler:
@@ -54,7 +55,10 @@ class MultiNodeEnabler:
     >>> catalog._datasets['b-slicer']._protocol
     'http'
     """
-
+    @hook_impl
+    def after_context_created(self, context) -> None:
+        self.pipe = pipelines["__default__"]
+        
     @hook_impl
     def before_pipeline_run(
         self,
@@ -69,7 +73,7 @@ class MultiNodeEnabler:
             pipeline (Pipeline): Pipeline to be run.
             catalog (DataCatalog): Catalog of data sources.
         """
-        for node in pipeline.nodes:
+        for node in self.pipe.nodes:
             if isinstance(node, _MultiNode):
                 for original, slice in zip(
                     node.original_partitioned_outputs, node.partitioned_outputs
@@ -78,7 +82,13 @@ class MultiNodeEnabler:
                     assert isinstance(
                         partitioned, PartitionedDataset
                     ), "multinode cannot have non partitioned outputs"
-                    catalog.add(slice, deepcopy(partitioned))
+
+                    cpy = deepcopy(partitioned)
+
+                    setattr(cpy, 'slice_id', node._slice_id)
+                    setattr(cpy, 'slice_count', node.slice_count)
+
+                    catalog.add(slice, cpy)
 
                 for input in node.original_partitioned_inputs:
                     partitioned = catalog._get_dataset(input)
