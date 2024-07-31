@@ -82,9 +82,16 @@ class MultiNodeEnabler:
                     assert isinstance(
                         partitioned, PartitionedDataset
                     ), "multinode cannot have non partitioned outputs"
-                    
-                    if not catalog.exists(slice):
-                        catalog.add(slice, deepcopy(partitioned))
+
+                    #if not catalog.exists(slice):
+
+                    cpy = deepcopy(partitioned)
+
+                    setattr(cpy, 'slice_id', node._slice_id)
+
+                    setattr(cpy, 'slice_count', node.slice_count)
+
+                    catalog.add(slice, deepcopy(partitioned))
 
                 for input in node.original_partitioned_inputs:
                     partitioned = catalog._get_dataset(input)
